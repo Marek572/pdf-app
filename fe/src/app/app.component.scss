@@ -1,0 +1,34 @@
+#toolbarViewerMiddle{
+  flex-grow: 1;
+  display: flex;
+  gap: 20px; /* Ensures consistent spacing between all children */
+}
+
+main{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  height: 99vh;
+  width: 99vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drop-zone p {
+  margin: 0;
+  font-size: 1.2em;
+  color: #aaa;
+}
+
+.drop-zone.drag-over {
+  background-color: #f0f0f0;
+}

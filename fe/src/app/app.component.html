@@ -1,0 +1,60 @@
+@if (!uploadedFileSrc){
+<main>
+  <div
+    class="drop-zone"
+    (click)="fileInput.click()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+  >
+  <p>Drag and drop a PDF file here or click to upload</p>
+  <input #fileInput type="file" accept=".pdf" (change)="onUploadFile($event)" hidden />
+
+  </div>
+</main>
+} @else {
+<ngx-extended-pdf-viewer
+  #pdfViewer
+  [src]="uploadedFileSrc"
+  useBrowserLocale="true"
+  height="auto"
+  [textLayer]="true"
+  [showHandToolButton]="true"
+  [theme]="theme"
+  [filenameForDownload]="uploadedFileName"
+  [customToolbar]="additionalButtons"
+></ngx-extended-pdf-viewer>
+<ng-template #additionalButtons>
+  <div id="toolbarViewer">
+    <div id="toolbarViewerLeft">
+      <pdf-toggle-sidebar></pdf-toggle-sidebar>
+    </div>
+    <div id="toolbarViewerMiddle">
+      <pdf-paging-area
+        [showFirstAndLastPageButtons]="false"
+        [showPreviousAndNextPageButtons]="false"
+      ></pdf-paging-area>
+      <pdf-zoom-toolbar [showZoomDropdown]="false"></pdf-zoom-toolbar>
+      <pdf-rotate-page [counterClockwise]="false"></pdf-rotate-page>
+    </div>
+    <div id="toolbarViewerRight">
+      <pdf-download></pdf-download>
+      <pdf-print></pdf-print>
+      <!-- <button
+          mat-icon-button
+          class="toolbarButton"
+          (click)="clearAllFields()"
+          title="Clear all fields"
+        >
+          <mat-icon>clear</mat-icon>
+        </button> -->
+    </div>
+  </div>
+</ng-template>
+}
+
+<!--
+TODO: KURSOR CHANGE POINTER
+TODO: SEPERATE COMPONENTS FOR TOOLBAR
+FIXME: ADD SEPARATOR BETWEEN PAGING AND ZOOM
+-->
