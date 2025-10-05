@@ -1,0 +1,8 @@
+node_modules
+dist
+fe/node_modules
+be/node_modules
+*.min.js
+*.bundle.js
+coverage
+.env
