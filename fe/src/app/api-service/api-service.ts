@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
-
   private _http: HttpClient = inject(HttpClient);
 
   private _controllerPath = 'pdf';
@@ -15,12 +15,10 @@ export class ApiService {
   //UPLOAD PDF
 
   uploadPdf(file: File) {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/upload`;
+    const url = `${environment.apiUrl}/${this._controllerPath}/upload`;
     const formData: FormData = new FormData();
     formData.append('file', file);
 
     return this._http.post(url, formData);
   }
-
-
 }

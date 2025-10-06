@@ -1,4 +1,5 @@
-import { Component, signal, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, inject,signal } from '@angular/core';
+
 import { ApiService } from './api-service/api-service';
 
 @Component({
@@ -12,8 +13,8 @@ export class AppComponent {
 
   private _apiService: ApiService = inject(ApiService);
 
-  uploadedFileSrc: string = '';
-  uploadedFileName: string = '';
+  uploadedFileSrc = '';
+  uploadedFileName = '';
   theme: 'dark' | 'light' = 'dark';
 
   protected onDragOver(event: DragEvent) {

@@ -1,14 +1,14 @@
-#toolbarViewerMiddle{
+#toolbarViewerMiddle {
   flex-grow: 1;
   display: flex;
   gap: 20px; /* Ensures consistent spacing between all children */
 }
 
-main{
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+main {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .drop-zone {
