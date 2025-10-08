@@ -1,6 +1,6 @@
-import { Component, inject,signal } from '@angular/core';
-
-import { ApiService } from './api-service/api-service';
+import { Component, inject, signal } from '@angular/core';
+import { ApiService, UploadResponse } from './api-service/api-service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +13,8 @@ export class AppComponent {
 
   private _apiService: ApiService = inject(ApiService);
 
-  uploadedFileSrc = '';
-  uploadedFileName = '';
+  uploadedFileSrc: string = '';
+  uploadedFileName: string = '';
   theme: 'dark' | 'light' = 'dark';
 
   protected onDragOver(event: DragEvent) {
@@ -43,19 +43,33 @@ export class AppComponent {
   private handleFile(file: File): void {
     this.uploadedFileName = file.name;
     const reader: FileReader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = (e: ProgressEvent<FileReader>) => {
       this.uploadedFileSrc = e.target?.result as string;
     };
     reader.readAsDataURL(file);
 
     this._apiService.uploadPdf(file).subscribe({
-      next: (response) => console.log('Upload successful:', response),
-      error: (error) => console.error('Upload failed:', error),
+      next: (response: UploadResponse) => {
+        console.log('Upload successful:', response);
+      },
+      error: (error: Error) => console.error('Upload failed:', error),
     });
   }
 
-  //TODO: Implement clearAllFields
-  // clearAllFields(): void {
+  clearAllFields(): void {
+    if (!this.uploadedFileName) {
+      return console.error('No file has been uploaded yet.');
+    }
 
-  // }
+    this._apiService.removeFieldsValues(this.uploadedFileName).subscribe({
+      next: (response: Blob) => {
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          this.uploadedFileSrc = e.target?.result as string;
+        };
+        reader.readAsDataURL(response);
+      },
+      error: (error: HttpErrorResponse) => console.error('Failed to clear fields:', error),
+    });
+  }
 }
