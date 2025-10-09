@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ApiService, UploadResponse } from './api-service/api-service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
 
 @Component({
   selector: 'app-root',
@@ -16,10 +17,13 @@ export class AppComponent {
   uploadedFileSrc: string = '';
   uploadedFileName: string = '';
   theme: 'dark' | 'light' = 'dark';
+  sidebarVisible: boolean = true;
+  activeSidebarView: PdfSidebarView = PdfSidebarView.THUMBS;
 
   protected onDragOver(event: DragEvent) {
     event.preventDefault();
   }
+
   protected onDragLeave(event: DragEvent) {
     event.preventDefault();
   }

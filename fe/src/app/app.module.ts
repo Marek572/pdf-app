@@ -1,6 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-// import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
@@ -10,13 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    // DragDropModule,
-    MatIconModule,
-    NgxExtendedPdfViewerModule,
-  ],
+  imports: [BrowserModule, AppRoutingModule, MatIconModule, NgxExtendedPdfViewerModule],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
 })
