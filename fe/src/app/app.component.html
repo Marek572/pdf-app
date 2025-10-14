@@ -16,13 +16,15 @@
     #pdfViewer
     [src]="uploadedFileSrc"
     useBrowserLocale="true"
-    height="auto"
     [textLayer]="true"
     [showHandToolButton]="true"
     [theme]="theme"
     [filenameForDownload]="uploadedFileName"
+    [enableDragAndDrop]="false"
     [sidebarVisible]="true"
     [activeSidebarView]="activeSidebarView"
+    (dragover)="onDragOver($event)"
+    (drop)="onDrop($event)"
     [customToolbar]="additionalButtons"
     [customSidebar]="customSidebar"
   ></ngx-extended-pdf-viewer>

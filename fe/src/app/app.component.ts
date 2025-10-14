@@ -14,7 +14,7 @@ export class AppComponent {
 
   private _apiService: ApiService = inject(ApiService);
 
-  uploadedFileSrc: string = '';
+  uploadedFileSrc: string | null = null;
   uploadedFileName: string = '';
   theme: 'dark' | 'light' = 'dark';
   sidebarVisible: boolean = true;
@@ -22,14 +22,17 @@ export class AppComponent {
 
   protected onDragOver(event: DragEvent) {
     event.preventDefault();
+    event.stopPropagation();
   }
 
   protected onDragLeave(event: DragEvent) {
     event.preventDefault();
+    event.stopPropagation();
   }
 
   protected onDrop(event: DragEvent) {
     event.preventDefault();
+    event.stopPropagation();
     const file: File | undefined = event.dataTransfer?.files?.[0];
     if (file && file.type === 'application/pdf') {
       this.handleFile(file);

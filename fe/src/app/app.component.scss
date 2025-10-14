@@ -28,18 +28,24 @@ main {
 }
 
 #toolbarViewer{
-  padding: 10px;
+  min-height: 55px;
 
   div{
     display: flex;
     align-items: center;
   }
 
+  #toolbarViewerLeft {
+    margin-left: 15px;
+  }
+
   #toolbarViewerMiddle {
-    flex-grow: 1;
     display: flex;
-    justify-content: center;
     gap: 15px;
+  }
+
+  #toolbarViewerRight{
+    margin-right: 5px;
   }
 
   .toolbarDivider{
@@ -49,7 +55,6 @@ main {
   }
 
 }
-
 
 #sidebarContainer{
   top: 20px;
