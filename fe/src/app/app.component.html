@@ -18,58 +18,23 @@
     useBrowserLocale="true"
     [textLayer]="true"
     [showHandToolButton]="true"
-    [theme]="theme"
+    theme="dark"
     [filenameForDownload]="uploadedFileName"
     [enableDragAndDrop]="false"
     [sidebarVisible]="true"
     [activeSidebarView]="activeSidebarView"
     (dragover)="onDragOver($event)"
     (drop)="onDrop($event)"
-    [customToolbar]="additionalButtons"
-    [customSidebar]="customSidebar"
+    [customToolbar]="toolbarRef.toolbar"
+    [customSidebar]="sidebarRef.sidebar"
+    [handTool]="false"
   ></ngx-extended-pdf-viewer>
-  <ng-template #additionalButtons>
-    <div id="toolbarViewer">
-      <div id="toolbarViewerLeft">
-        <pdf-toggle-sidebar [sidebarVisible]="sidebarVisible"></pdf-toggle-sidebar>
-      </div>
-      <div id="toolbarViewerMiddle">
-        <pdf-paging-area
-          [showFirstAndLastPageButtons]="false"
-          [showPreviousAndNextPageButtons]="false"
-        ></pdf-paging-area>
-        <span class="toolbarDivider"></span>
-        <pdf-zoom-toolbar [showZoomDropdown]="false"></pdf-zoom-toolbar>
-        <span class="toolbarDivider"></span>
-        <pdf-rotate-page [counterClockwise]="false"></pdf-rotate-page>
-      </div>
-      <div id="toolbarViewerRight">
-        <pdf-download></pdf-download>
-        <span class="toolbarDivider"></span>
-        <pdf-print></pdf-print>
-        <span class="toolbarDivider"></span>
-        <button
-          mat-icon-button
-          class="toolbarButton"
-          (click)="clearAllFields()"
-          title="Clear all fields"
-        >
-          <mat-icon>clear</mat-icon>
-        </button>
-      </div>
-    </div>
-  </ng-template>
 
-  <ng-template #customSidebar>
-    <div id="sidebarContainer">
-      <pdf-sidebar-content>
-        <div id="thumbnailView"></div>
-      </pdf-sidebar-content>
-    </div>
-  </ng-template>
+  <app-toolbar
+    #toolbarRef
+    (clearAllFields)="clearAllFields()"
+    [sidebarVisible]="sidebarVisible"
+  ></app-toolbar>
+
+  <app-sidebar #sidebarRef></app-sidebar>
 }
-
-<!--
-TODO: KURSOR CHANGE POINTER
-TODO: SEPERATE COMPONENTS FOR TOOLBAR
--->

@@ -1,0 +1,31 @@
+<ng-template #toolbar>
+  <div id="toolbarViewer">
+    <div id="toolbarViewerLeft">
+      <pdf-toggle-sidebar [sidebarVisible]="sidebarVisible"></pdf-toggle-sidebar>
+    </div>
+    <div id="toolbarViewerMiddle">
+      <pdf-paging-area
+        [showFirstAndLastPageButtons]="false"
+        [showPreviousAndNextPageButtons]="false"
+      ></pdf-paging-area>
+      <span class="toolbarDivider"></span>
+      <pdf-zoom-toolbar [showZoomDropdown]="false"></pdf-zoom-toolbar>
+      <span class="toolbarDivider"></span>
+      <pdf-rotate-page [counterClockwise]="false"></pdf-rotate-page>
+    </div>
+    <div id="toolbarViewerRight">
+      <pdf-download></pdf-download>
+      <span class="toolbarDivider"></span>
+      <pdf-print></pdf-print>
+      <span class="toolbarDivider"></span>
+      <button
+        mat-icon-button
+        class="toolbarButton"
+        (click)="clearAllFields.emit()"
+        title="Clear all fields"
+      >
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </div>
+</ng-template>

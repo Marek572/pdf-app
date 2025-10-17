@@ -16,7 +16,6 @@ export class AppComponent {
 
   uploadedFileSrc: string | null = null;
   uploadedFileName: string = '';
-  theme: 'dark' | 'light' = 'dark';
   sidebarVisible: boolean = true;
   activeSidebarView: PdfSidebarView = PdfSidebarView.THUMBS;
 

@@ -16,8 +16,6 @@ export class ApiService {
 
   private _controllerPath = 'pdf';
 
-  // TODO: Implement API service methods: CRUD
-
   uploadPdf(file: File): Observable<UploadResponse> {
     const url: string = `${environment.apiUrl}/${this._controllerPath}/upload`;
     const formData: FormData = new FormData();
