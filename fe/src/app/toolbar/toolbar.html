@@ -20,11 +20,20 @@
       <span class="toolbarDivider"></span>
       <button
         mat-icon-button
-        class="toolbarButton"
+        class="toolbarButton customButton"
         (click)="clearAllFields.emit()"
         title="Clear all fields"
       >
         <mat-icon>clear</mat-icon>
+      </button>
+      <span class="toolbarDivider"></span>
+      <button
+        mat-icon-button
+        class="toolbarButton customButton"
+        (click)="addFormField.emit()"
+        title="Add form field"
+      >
+        <mat-icon>add</mat-icon>
       </button>
     </div>
   </div>

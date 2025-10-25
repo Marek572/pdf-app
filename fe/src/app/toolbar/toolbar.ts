@@ -12,4 +12,5 @@ export class Toolbar {
   @Input() sidebarVisible: boolean = true;
 
   @Output() clearAllFields = new EventEmitter<void>();
+  @Output() addFormField = new EventEmitter<void>();
 }

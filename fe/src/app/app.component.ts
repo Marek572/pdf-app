@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ApiService, UploadResponse } from './api-service/api-service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +15,6 @@ export class AppComponent {
 
   uploadedFileSrc: string | null = null;
   uploadedFileName: string = '';
-  sidebarVisible: boolean = true;
-  activeSidebarView: PdfSidebarView = PdfSidebarView.THUMBS;
 
   protected onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -77,5 +74,9 @@ export class AppComponent {
       },
       error: (error: HttpErrorResponse) => console.error('Failed to clear fields:', error),
     });
+  }
+
+  addFormField(): void {
+    //TODO: implement adding form field
   }
 }

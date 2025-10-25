@@ -12,29 +12,12 @@
     </div>
   </main>
 } @else {
-  <ngx-extended-pdf-viewer
-    #pdfViewer
-    [src]="uploadedFileSrc"
-    useBrowserLocale="true"
-    [textLayer]="true"
-    [showHandToolButton]="true"
-    theme="dark"
-    [filenameForDownload]="uploadedFileName"
-    [enableDragAndDrop]="false"
-    [sidebarVisible]="true"
-    [activeSidebarView]="activeSidebarView"
-    (dragover)="onDragOver($event)"
+  <app-pdf-viewer
+    [src]="uploadedFileSrc!"
+    [filename]="uploadedFileName"
+    (dragOver)="onDragOver($event)"
     (drop)="onDrop($event)"
-    [customToolbar]="toolbarRef.toolbar"
-    [customSidebar]="sidebarRef.sidebar"
-    [handTool]="false"
-  ></ngx-extended-pdf-viewer>
-
-  <app-toolbar
-    #toolbarRef
     (clearAllFields)="clearAllFields()"
-    [sidebarVisible]="sidebarVisible"
-  ></app-toolbar>
-
-  <app-sidebar #sidebarRef></app-sidebar>
+    (addFormField)="addFormField()"
+  ></app-pdf-viewer>
 }

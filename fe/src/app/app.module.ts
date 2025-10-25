@@ -8,9 +8,10 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { Toolbar } from './toolbar/toolbar';
 import { Sidebar } from './sidebar/sidebar';
+import { PdfViewer } from './pdf-viewer/pdf-viewer';
 
 @NgModule({
-  declarations: [AppComponent, Toolbar, Sidebar],
+  declarations: [AppComponent, Toolbar, Sidebar, PdfViewer],
   imports: [BrowserModule, AppRoutingModule, MatIconModule, NgxExtendedPdfViewerModule],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
