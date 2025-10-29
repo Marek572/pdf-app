@@ -8,4 +8,4 @@ export const PORT: number = Number(process.env.PORT ?? 3000);
 
 export const uploadDir: string = process.env.UPLOAD_DIR
   ? path.resolve(process.env.UPLOAD_DIR)
-  : path.resolve(process.cwd(), 'uploads');
+  : path.resolve(process.cwd(), '..', 'uploads');

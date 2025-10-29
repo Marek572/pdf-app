@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { ApiService, UploadResponse } from './api-service/api-service';
+import { Component, HostListener, inject, signal } from '@angular/core';
+import { ApiService, IUploadPdf } from './api-service/api-service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -14,7 +14,10 @@ export class AppComponent {
   private _apiService: ApiService = inject(ApiService);
 
   uploadedFileSrc: string | null = null;
+
   uploadedFileName: string = '';
+  toggleAddFormField: boolean = false;
+  currentPage: number = 1;
 
   protected onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -31,6 +34,7 @@ export class AppComponent {
     event.stopPropagation();
     const file: File | undefined = event.dataTransfer?.files?.[0];
     if (file && file.type === 'application/pdf') {
+      this.toggleAddFormField = false;
       this.handleFile(file);
     }
   }
@@ -39,6 +43,7 @@ export class AppComponent {
     const input: HTMLInputElement = event.target as HTMLInputElement;
     const file: File | undefined = input.files?.[0];
     if (file && file.type === 'application/pdf') {
+      this.toggleAddFormField = false;
       this.handleFile(file);
     }
   }
@@ -52,11 +57,56 @@ export class AppComponent {
     reader.readAsDataURL(file);
 
     this._apiService.uploadPdf(file).subscribe({
-      next: (response: UploadResponse) => {
+      next: (response: IUploadPdf) => {
         console.log('Upload successful:', response);
       },
       error: (error: Error) => console.error('Upload failed:', error),
     });
+  }
+
+  toggleAddFormFieldClick(): void {
+    this.toggleAddFormField = !this.toggleAddFormField;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.toggleAddFormField) {
+      this.toggleAddFormField = false;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  addFormField(event: MouseEvent): void {
+    const target: HTMLElement = event.target as HTMLElement;
+
+    if (!this.toggleAddFormField) return;
+
+    const canvas = target.parentElement?.querySelector('canvas');
+
+    if (this.toggleAddFormField && canvas) {
+      const rect = canvas.getBoundingClientRect();
+      console.log('Coordinates:', { x: event.clientX - rect.left, y: rect.bottom - event.clientY });
+
+      this._apiService
+        .addPdfField(
+          this.uploadedFileName,
+          this.currentPage,
+          event.clientX - rect.left,
+          rect.bottom - event.clientY,
+        )
+        .subscribe({
+          next: (response: Blob) => {
+            const reader = new FileReader();
+            reader.onload = (e: ProgressEvent<FileReader>) => {
+              this.uploadedFileSrc = e.target?.result as string;
+            };
+            reader.readAsDataURL(response);
+            this.toggleAddFormField = false;
+          },
+          error: (error: Error) => console.error('Add form field failed:', error),
+        });
+    }
   }
 
   clearAllFields(): void {
@@ -74,9 +124,5 @@ export class AppComponent {
       },
       error: (error: HttpErrorResponse) => console.error('Failed to clear fields:', error),
     });
-  }
-
-  addFormField(): void {
-    //TODO: implement adding form field
   }
 }

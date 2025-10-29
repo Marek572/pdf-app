@@ -15,9 +15,12 @@
   <app-pdf-viewer
     [src]="uploadedFileSrc!"
     [filename]="uploadedFileName"
+    [toggleAddFormField]="toggleAddFormField"
+    (click)="addFormField($event)"
     (dragOver)="onDragOver($event)"
     (drop)="onDrop($event)"
     (clearAllFields)="clearAllFields()"
-    (addFormField)="addFormField()"
+    (toggleAddFormFieldClick)="toggleAddFormFieldClick()"
+    [(page)]="currentPage"
   ></app-pdf-viewer>
 }
