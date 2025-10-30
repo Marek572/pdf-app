@@ -10,6 +10,10 @@
           "style": "scss",
           "standalone": false
         },
+        "@schematics/angular:service": {
+          "flat": false,
+          "skipTests": false
+        },
         "@schematics/angular:directive": {
           "standalone": false
         },
