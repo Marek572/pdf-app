@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
 
-export interface UploadResponse {
+export interface IUploadPdf {
   fileName: string;
 }
 
@@ -16,17 +16,29 @@ export class ApiService {
 
   private _controllerPath = 'pdf';
 
-  uploadPdf(file: File): Observable<UploadResponse> {
+  uploadPdf(file: File): Observable<IUploadPdf> {
     const url: string = `${environment.apiUrl}/${this._controllerPath}/upload`;
     const formData: FormData = new FormData();
     formData.append('file', file);
 
-    return this._http.post<UploadResponse>(url, formData);
+    return this._http.post<IUploadPdf>(url, formData);
+  }
+
+  addPdfField(fileName: string, pageIndex: number, x: number, y: number): Observable<Blob> {
+    const url: string = `${environment.apiUrl}/${this._controllerPath}/addField`;
+
+    const formData: FormData = new FormData();
+    formData.append('fileName', fileName);
+    formData.append('pageIndex', pageIndex.toString());
+    formData.append('x', x.toString());
+    formData.append('y', y.toString());
+
+    return this._http.put(url, formData, { responseType: 'blob' });
   }
 
   //FIXME: if type of Observable<Blob> erorr is handled as blob and not shown
-  removeFieldsValues(filename: string): Observable<Blob> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/${filename}`;
+  removeFieldsValues(fileName: string): Observable<Blob> {
+    const url: string = `${environment.apiUrl}/${this._controllerPath}/${fileName}`;
     return this._http.put(url, {}, { responseType: 'blob' });
   }
 }

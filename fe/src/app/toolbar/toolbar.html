@@ -24,16 +24,20 @@
         (click)="clearAllFields.emit()"
         title="Clear all fields"
       >
-        <mat-icon>clear</mat-icon>
+        <mat-icon>delete</mat-icon>
       </button>
       <span class="toolbarDivider"></span>
       <button
         mat-icon-button
         class="toolbarButton customButton"
-        (click)="addFormField.emit()"
+        (click)="toggleAddFormFieldClick.emit()"
         title="Add form field"
       >
-        <mat-icon>add</mat-icon>
+        @if (toggleAddFormField) {
+          <mat-icon>close</mat-icon>
+        } @else {
+          <mat-icon>add</mat-icon>
+        }
       </button>
     </div>
   </div>

@@ -7,27 +7,30 @@ import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
   template: `
     <ngx-extended-pdf-viewer
       #pdfViewer
-      [src]="src"
+      theme="dark"
       useBrowserLocale="true"
+      [page]="page"
+      [src]="src"
+      [handTool]="false"
       [textLayer]="true"
       [showHandToolButton]="true"
-      theme="dark"
       [filenameForDownload]="filename"
       [enableDragAndDrop]="false"
       [sidebarVisible]="sidebarVisible"
       [activeSidebarView]="activeSidebarView"
-      (dragover)="dragOver.emit($event)"
-      (drop)="drop.emit($event)"
       [customToolbar]="toolbarRef.toolbar"
       [customSidebar]="sidebarRef.sidebar"
-      [handTool]="false"
+      (dragover)="dragOver.emit($event)"
+      (drop)="drop.emit($event)"
+      (pageChange)="pageChange.emit($event)"
     ></ngx-extended-pdf-viewer>
 
     <app-toolbar
       #toolbarRef
-      (clearAllFields)="clearAllFields.emit()"
-      (addFormField)="addFormField.emit()"
       [sidebarVisible]="sidebarVisible"
+      [toggleAddFormField]="toggleAddFormField"
+      (clearAllFields)="clearAllFields.emit()"
+      (toggleAddFormFieldClick)="toggleAddFormFieldClick.emit()"
     ></app-toolbar>
 
     <app-sidebar #sidebarRef></app-sidebar>
@@ -39,11 +42,14 @@ export class PdfViewer {
 
   @Input() src!: string;
   @Input() filename: string = '';
+  @Input() toggleAddFormField: boolean = false;
+  @Input() page: number | undefined;
 
   @Output() dragOver = new EventEmitter<DragEvent>();
   @Output() drop = new EventEmitter<DragEvent>();
   @Output() clearAllFields = new EventEmitter<void>();
-  @Output() addFormField = new EventEmitter<void>();
+  @Output() toggleAddFormFieldClick = new EventEmitter<void>();
+  @Output() pageChange = new EventEmitter<number>();
 
   @ViewChild('toolbarRef', { read: TemplateRef, static: false }) toolbarTpl?: TemplateRef<void>;
   @ViewChild('sidebarRef', { read: TemplateRef, static: false }) sidebarTpl?: TemplateRef<void>;

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { uploadDir } from '../config/server.config';
-import { getPdfFields, removeFieldsValues } from '../services/pdf.service';
+import { addPdfField, getPdfFields, removeFieldsValues } from '../services/pdf.service';
 
 export const uploadPdf = async (req: Request, res: Response) => {
   try {
@@ -11,6 +11,32 @@ export const uploadPdf = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Failed to upload PDF');
+  }
+};
+
+export const addPdfFields = async (req: Request, res: Response) => {
+  const fileName: string = req.body.fileName;
+  const pageIndex: number = Number(req.body.pageIndex);
+  const x: number = Number(req.body.x);
+  const y: number = Number(req.body.y);
+
+  console.log(`Adding PDF field to ${fileName} at page ${pageIndex}, position (${x}, ${y})`);
+
+  try {
+    if (!fileName) return res.status(400).json({ message: 'No filename provided' });
+
+    const filePath = path.join(uploadDir, fileName);
+    const fileBuffer = fs.readFileSync(filePath);
+
+    const modifiedBuffer = await addPdfField(fileBuffer, pageIndex, x, y);
+    fs.writeFileSync(filePath, modifiedBuffer);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.send(Buffer.from(modifiedBuffer));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to add PDF field');
   }
 };
 

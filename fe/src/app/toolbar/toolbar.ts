@@ -10,7 +10,8 @@ export class Toolbar {
   @ViewChild('toolbar', { static: true }) toolbar!: TemplateRef<void>;
 
   @Input() sidebarVisible: boolean = true;
+  @Input() toggleAddFormField: boolean = false;
 
   @Output() clearAllFields = new EventEmitter<void>();
-  @Output() addFormField = new EventEmitter<void>();
+  @Output() toggleAddFormFieldClick = new EventEmitter<void>();
 }
