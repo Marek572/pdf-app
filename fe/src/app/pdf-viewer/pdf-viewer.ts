@@ -1,5 +1,15 @@
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
+
 import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
+import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
 
 @Component({
   selector: 'app-pdf-viewer',
@@ -23,6 +33,7 @@ import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
       (dragover)="dragOver.emit($event)"
       (drop)="drop.emit($event)"
       (pageChange)="pageChange.emit($event)"
+      (annotationLayerRendered)="_pdfViewerService.onAnnotationLayerRendered()"
     ></ngx-extended-pdf-viewer>
 
     <app-toolbar
@@ -37,13 +48,15 @@ import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
   `,
 })
 export class PdfViewer {
+  protected _pdfViewerService = inject(PdfViewerService);
+
   sidebarVisible: boolean = true;
   activeSidebarView: PdfSidebarView = PdfSidebarView.THUMBS;
 
   @Input() src!: string;
-  @Input() filename: string = '';
-  @Input() toggleAddFormField: boolean = false;
-  @Input() page: number | undefined;
+  @Input() filename!: string;
+  @Input() page!: number;
+  @Input() toggleAddFormField!: boolean;
 
   @Output() dragOver = new EventEmitter<DragEvent>();
   @Output() drop = new EventEmitter<DragEvent>();
@@ -53,4 +66,6 @@ export class PdfViewer {
 
   @ViewChild('toolbarRef', { read: TemplateRef, static: false }) toolbarTpl?: TemplateRef<void>;
   @ViewChild('sidebarRef', { read: TemplateRef, static: false }) sidebarTpl?: TemplateRef<void>;
+
+  //TODO: przy dodawaniu pola trzeba pilnowac zoom oraz obrot strony
 }

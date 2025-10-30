@@ -11,19 +11,30 @@ import {
   rgb,
 } from 'pdf-lib';
 
-export async function addPdfField(fileBuffer: Buffer, pageIndex: number, x: number, y: number) {
+export interface IGetFields {
+  name: string;
+  type: string;
+}
+
+export async function addPdfField(
+  fileBuffer: Buffer,
+  pageIndex: number,
+  x: number,
+  y: number
+): Promise<Uint8Array> {
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
   const form: PDFForm = pdfDoc.getForm();
   const page: PDFPage = pdfDoc.getPage(pageIndex - 1);
   console.log(`position (${x}, ${y})`);
   console.log(`page size (${page.getWidth()}, ${page.getHeight()})`);
 
+  const scalingFactor = 1.33;
   const datetime: number = new Date().valueOf();
   const textField: PDFTextField = form.createTextField(`newTextField_${datetime}`);
   textField.setText('Sample Text');
   textField.addToPage(page, {
-    x: x / 1.33,
-    y: y / 1.33,
+    x: x / scalingFactor,
+    y: y / scalingFactor,
     width: 100,
     height: 25,
     textColor: rgb(0, 0, 0),
@@ -35,7 +46,7 @@ export async function addPdfField(fileBuffer: Buffer, pageIndex: number, x: numb
   return pdfBytes;
 }
 
-export async function getPdfFields(fileBuffer: Buffer) {
+export async function getPdfFields(fileBuffer: Buffer): Promise<IGetFields[]> {
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
 
   const form: PDFForm = pdfDoc.getForm();
@@ -47,21 +58,29 @@ export async function getPdfFields(fileBuffer: Buffer) {
   });
 }
 
-export async function removeFieldsValues(fileBuffer: Buffer) {
+export async function removeFieldsValues(fileBuffer: Buffer): Promise<Uint8Array> {
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
 
   const form: PDFForm = pdfDoc.getForm();
   form.getFields().forEach((field: PDFField) => {
-    if (field instanceof PDFTextField) {
-      field.setText('');
-    } else if (field instanceof PDFCheckBox) {
-      field.uncheck();
-    } else if (field instanceof PDFDropdown) {
-      field.clear();
-    } else if (field instanceof PDFRadioGroup) {
-      field.clear();
-    } else if (field instanceof PDFOptionList) {
-      field.clear();
+    switch (true) {
+      case field instanceof PDFTextField:
+        field.setText('');
+        break;
+      case field instanceof PDFCheckBox:
+        field.uncheck();
+        break;
+      case field instanceof PDFDropdown:
+        field.clear();
+        break;
+      case field instanceof PDFRadioGroup:
+        field.clear();
+        break;
+      case field instanceof PDFOptionList:
+        field.clear();
+        break;
+      default:
+        console.error('Unsupported field type');
     }
   });
 

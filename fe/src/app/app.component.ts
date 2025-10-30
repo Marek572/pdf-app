@@ -1,6 +1,9 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
-import { ApiService, IUploadPdf } from './api-service/api-service';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+
+import { ApiService } from './api-service/api-service';
+import { AddFormFieldState } from './add-form-field-state/add-form-field-state';
+import { FileService } from './file-service/file-service';
 
 @Component({
   selector: 'app-root',
@@ -8,73 +11,40 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './app.component.scss',
   standalone: false,
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   protected readonly title = signal('fe');
 
   private _apiService: ApiService = inject(ApiService);
+  private _addFormFieldState: AddFormFieldState = inject(AddFormFieldState);
+  public fileService: FileService = inject(FileService);
 
-  uploadedFileSrc: string | null = null;
-
-  uploadedFileName: string = '';
-  toggleAddFormField: boolean = false;
+  uploadedFileSrc!: string;
+  uploadedFileName!: string;
+  toggleAddFormField!: boolean;
   currentPage: number = 1;
+  fields!: HTMLInputElement[];
 
-  protected onDragOver(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+  ngOnInit(): void {
+    this._addFormFieldState.toggleAddFormField$.subscribe(
+      (value: boolean) => (this.toggleAddFormField = value),
+    );
 
-  protected onDragLeave(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  protected onDrop(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    const file: File | undefined = event.dataTransfer?.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      this.toggleAddFormField = false;
-      this.handleFile(file);
-    }
-  }
-
-  protected onUploadFile(event: Event): void {
-    const input: HTMLInputElement = event.target as HTMLInputElement;
-    const file: File | undefined = input.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      this.toggleAddFormField = false;
-      this.handleFile(file);
-    }
-  }
-
-  private handleFile(file: File): void {
-    this.uploadedFileName = file.name;
-    const reader: FileReader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      this.uploadedFileSrc = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-
-    this._apiService.uploadPdf(file).subscribe({
-      next: (response: IUploadPdf) => {
-        console.log('Upload successful:', response);
-      },
-      error: (error: Error) => console.error('Upload failed:', error),
-    });
-  }
-
-  toggleAddFormFieldClick(): void {
-    this.toggleAddFormField = !this.toggleAddFormField;
+    this.fileService.uploadedFileSrc$.subscribe((src: string) => (this.uploadedFileSrc = src));
+    this.fileService.uploadedFileName$.subscribe((name: string) => (this.uploadedFileName = name));
+    this.fileService.fields$.subscribe((fields: HTMLInputElement[]) => (this.fields = fields));
   }
 
   @HostListener('document:keydown', ['$event'])
   protected onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape' && this.toggleAddFormField) {
-      this.toggleAddFormField = false;
+      this._addFormFieldState.setDefaultValue();
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+
+  toggleAddFormFieldClick(): void {
+    this._addFormFieldState.toggleValue();
   }
 
   addFormField(event: MouseEvent): void {
@@ -102,7 +72,7 @@ export class AppComponent {
               this.uploadedFileSrc = e.target?.result as string;
             };
             reader.readAsDataURL(response);
-            this.toggleAddFormField = false;
+            this._addFormFieldState.setDefaultValue();
           },
           error: (error: Error) => console.error('Add form field failed:', error),
         });
