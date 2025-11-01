@@ -27,11 +27,17 @@ export class ApiService {
   addPdfField(fileName: string, pageIndex: number, x: number, y: number): Observable<Blob> {
     const url: string = `${environment.apiUrl}/${this._controllerPath}/addField`;
 
+    const fields: { [key: string]: string } = {
+      fileName,
+      pageIndex: pageIndex.toString(),
+      x: x.toString(),
+      y: y.toString(),
+    };
     const formData: FormData = new FormData();
-    formData.append('fileName', fileName);
-    formData.append('pageIndex', pageIndex.toString());
-    formData.append('x', x.toString());
-    formData.append('y', y.toString());
+
+    for (const key in fields) {
+      formData.append(key, fields[key]);
+    }
 
     return this._http.put(url, formData, { responseType: 'blob' });
   }

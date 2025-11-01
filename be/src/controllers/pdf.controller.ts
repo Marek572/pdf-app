@@ -50,6 +50,8 @@ export const clearPdfFields = async (req: Request, res: Response) => {
     const fileBuffer = fs.readFileSync(filePath);
     const fields = await getPdfFields(fileBuffer);
 
+    console.log(`Found ${fields.length} fields in PDF ${fileName}`);
+
     if (fields.length === 0) {
       return res.status(400).json({ error: { message: 'No form fields found in the PDF' } });
     }
