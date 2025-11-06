@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { uploadDir } from '../config/server.config';
 import { addPdfField, getPdfFields, removeFieldsValues } from '../services/pdf.service';
+import { PDFDocument } from 'pdf-lib';
 
 export const uploadPdf = async (req: Request, res: Response) => {
   try {
@@ -37,6 +38,27 @@ export const addPdfFields = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Failed to add PDF field');
+  }
+};
+
+export const updatePdfFields = async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+
+    if (!file) return res.status(400).json({ message: 'Filename or file missing' });
+
+    const fileName = file.filename;
+    const filePath = file.path;
+    const fileBuffer = fs.readFileSync(filePath);
+
+    fs.writeFileSync(filePath, fileBuffer);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.send(Buffer.from(fileBuffer));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to update PDF fields');
   }
 };
 

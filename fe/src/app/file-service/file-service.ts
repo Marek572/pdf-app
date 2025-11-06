@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { AddFormFieldState } from '../add-form-field-state/add-form-field-state';
 import { ApiService, IUploadPdf } from '../api-service/api-service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,33 +11,35 @@ export class FileService {
   private _apiService: ApiService = inject(ApiService);
   private _addFormFieldState: AddFormFieldState = inject(AddFormFieldState);
 
-  private uploadedFileNameSubject = new BehaviorSubject<string>('');
-  private uploadedFileSrcSubject = new BehaviorSubject<string>('');
-  private fields = new BehaviorSubject<HTMLInputElement[]>([]);
+  private _uploadedFileNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  private _uploadedFileSrcSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  private _fields: BehaviorSubject<HTMLInputElement[]> = new BehaviorSubject<HTMLInputElement[]>(
+    [],
+  );
 
-  uploadedFileName$ = this.uploadedFileNameSubject.asObservable();
-  uploadedFileSrc$ = this.uploadedFileSrcSubject.asObservable();
-  fields$ = this.fields.asObservable();
+  uploadedFileName$: Observable<string> = this._uploadedFileNameSubject.asObservable();
+  uploadedFileSrc$: Observable<string> = this._uploadedFileSrcSubject.asObservable();
+  fields$: Observable<HTMLInputElement[]> = this._fields.asObservable();
 
-  private processFile(event: DragEvent): void {
+  private _processFile(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
   }
 
   onDragOver(event: DragEvent): void {
-    this.processFile(event);
+    this._processFile(event);
   }
 
   onDragLeave(event: DragEvent): void {
-    this.processFile(event);
+    this._processFile(event);
   }
 
   onDrop(event: DragEvent): void {
-    this.processFile(event);
+    this._processFile(event);
     const file: File | undefined = event.dataTransfer?.files?.[0];
     if (file && file.type === 'application/pdf') {
       this._addFormFieldState.setDefaultValue();
-      this.handleFile(file);
+      this._handleFile(file);
     }
   }
 
@@ -46,15 +48,15 @@ export class FileService {
     const file: File | undefined = input.files?.[0];
     if (file && file.type === 'application/pdf') {
       this._addFormFieldState.setDefaultValue();
-      this.handleFile(file);
+      this._handleFile(file);
     }
   }
 
-  private handleFile(file: File): void {
-    this.uploadedFileNameSubject.next(file.name);
+  private _handleFile(file: File): void {
+    this._uploadedFileNameSubject.next(file.name);
     const reader: FileReader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      this.uploadedFileSrcSubject.next(e.target?.result as string);
+      this._uploadedFileSrcSubject.next(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 

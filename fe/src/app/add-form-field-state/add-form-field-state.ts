@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AddFormFieldState {
-  private toggleAddFormField: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  toggleAddFormField$ = this.toggleAddFormField.asObservable();
+  private _toggleAddFormField: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  toggleAddFormField$: Observable<boolean> = this._toggleAddFormField.asObservable();
 
   setDefaultValue(): void {
-    this.toggleAddFormField.next(false);
+    this._toggleAddFormField.next(false);
   }
 
   toggleValue(): void {
-    this.toggleAddFormField.next(!this.toggleAddFormField.value);
+    this._toggleAddFormField.next(!this._toggleAddFormField.value);
   }
 }

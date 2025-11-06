@@ -20,7 +20,17 @@
   }
 
   .customButton{
-    color: #c3c3c5
+    color: #c3c3c5;
+
+    &.enabled {
+      color: inherit;
+      pointer-events: auto;
+    }
+
+    &.disabled {
+      color: gray;
+      pointer-events: none;
+    }
   }
 
   .toolbarDivider{

@@ -14,7 +14,7 @@ export interface IUploadPdf {
 export class ApiService {
   private _http: HttpClient = inject(HttpClient);
 
-  private _controllerPath = 'pdf';
+  private _controllerPath: string = 'pdf';
 
   uploadPdf(file: File): Observable<IUploadPdf> {
     const url: string = `${environment.apiUrl}/${this._controllerPath}/upload`;
@@ -25,7 +25,7 @@ export class ApiService {
   }
 
   addPdfField(fileName: string, pageIndex: number, x: number, y: number): Observable<Blob> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/addField`;
+    const url: string = `${environment.apiUrl}/${this._controllerPath}/${fileName}/addField`;
 
     const fields: { [key: string]: string } = {
       fileName,
@@ -42,9 +42,17 @@ export class ApiService {
     return this._http.put(url, formData, { responseType: 'blob' });
   }
 
+  updatePdfFields(fileName: string, blob: Blob): Observable<Blob> {
+    const url: string = `${environment.apiUrl}/${this._controllerPath}/${fileName}/updateFields`;
+    const formData: FormData = new FormData();
+    formData.append('file', blob, fileName);
+
+    return this._http.put(url, formData, { responseType: 'blob' });
+  }
+
   //FIXME: if type of Observable<Blob> erorr is handled as blob and not shown
   removeFieldsValues(fileName: string): Observable<Blob> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/${fileName}`;
+    const url: string = `${environment.apiUrl}/${this._controllerPath}/${fileName}/clearFields`;
     return this._http.put(url, {}, { responseType: 'blob' });
   }
 }
