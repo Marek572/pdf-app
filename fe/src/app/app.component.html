@@ -21,11 +21,13 @@
   <app-pdf-viewer
     [src]="uploadedFileSrc!"
     [filename]="uploadedFileName"
+    [toggleEditFormFields]="toggleEditFormFields"
     [toggleAddFormField]="toggleAddFormField"
     (click)="addFormField($event)"
     (dragOver)="fileService.onDragOver($event)"
     (drop)="fileService.onDrop($event)"
     (clearAllFields)="clearAllFields()"
+    (toggleEditFormFieldsClick)="toggleEditFormFieldsClick()"
     (toggleAddFormFieldClick)="toggleAddFormFieldClick()"
     [(page)]="currentPage"
   ></app-pdf-viewer>

@@ -21,23 +21,37 @@
       <button
         mat-icon-button
         class="toolbarButton customButton"
-        (click)="clearAllFields.emit()"
-        title="Clear all fields"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-      <span class="toolbarDivider"></span>
-      <button
-        mat-icon-button
-        class="toolbarButton customButton"
         (click)="toggleAddFormFieldClick.emit()"
         title="Add form field"
+        [disabled]="toggleEditFormFields"
+        [ngClass]="{ enabled: !toggleEditFormFields, disabled: toggleEditFormFields }"
       >
         @if (toggleAddFormField) {
           <mat-icon>close</mat-icon>
         } @else {
           <mat-icon>add</mat-icon>
         }
+      </button>
+      <span class="toolbarDivider"></span>
+      <button
+        mat-icon-button
+        class="toolbarButton customButton"
+        (click)="toggleEditFormFieldsClick.emit()"
+        title="Enable fields editing"
+        [style.color]="!toggleEditFormFields ? 'red' : 'lightgreen'"
+      >
+        <mat-icon>editing</mat-icon>
+      </button>
+      <span class="toolbarDivider"></span>
+      <button
+        mat-icon-button
+        class="toolbarButton customButton"
+        (click)="clearAllFields.emit()"
+        title="Clear all fields"
+        [disabled]="!toggleEditFormFields"
+        [ngClass]="{ enabled: toggleEditFormFields, disabled: !toggleEditFormFields }"
+      >
+        <mat-icon>delete</mat-icon>
       </button>
     </div>
   </div>

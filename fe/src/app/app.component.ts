@@ -4,6 +4,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from './api-service/api-service';
 import { AddFormFieldState } from './add-form-field-state/add-form-field-state';
 import { FileService } from './file-service/file-service';
+import { EditFormFieldsState } from './edit-form-fields-state/edit-form-fields-state';
+import { PdfViewerService } from './pdf-viewer-service/pdf-viewer-service';
 
 @Component({
   selector: 'app-root',
@@ -16,17 +18,23 @@ export class AppComponent implements OnInit {
 
   private _apiService: ApiService = inject(ApiService);
   private _addFormFieldState: AddFormFieldState = inject(AddFormFieldState);
+  private _editFormFieldsState: EditFormFieldsState = inject(EditFormFieldsState);
+  private _pdfViewerService: PdfViewerService = inject(PdfViewerService);
   public fileService: FileService = inject(FileService);
 
   uploadedFileSrc!: string;
   uploadedFileName!: string;
   toggleAddFormField!: boolean;
+  toggleEditFormFields!: boolean;
   currentPage: number = 1;
   fields!: HTMLInputElement[];
 
   ngOnInit(): void {
     this._addFormFieldState.toggleAddFormField$.subscribe(
       (value: boolean) => (this.toggleAddFormField = value),
+    );
+    this._editFormFieldsState.toggleEditFormFields$.subscribe(
+      (value: boolean) => (this.toggleEditFormFields = value),
     );
 
     this.fileService.uploadedFileSrc$.subscribe((src: string) => (this.uploadedFileSrc = src));
@@ -45,6 +53,27 @@ export class AppComponent implements OnInit {
 
   toggleAddFormFieldClick(): void {
     this._addFormFieldState.toggleValue();
+  }
+
+  toggleEditFormFieldsClick(): void {
+    this._editFormFieldsState.toggleValue();
+
+    if (!this.toggleEditFormFields) {
+      const pdfFieldsBlob: Promise<Blob> = this._pdfViewerService.getPdfFieldsAsBlob();
+
+      pdfFieldsBlob.then((blob: Blob) => {
+        this._apiService.updatePdfFields(this.uploadedFileName, blob).subscribe({
+          next: (response: Blob) => {
+            const reader = new FileReader();
+            reader.onload = (e: ProgressEvent<FileReader>) => {
+              this.uploadedFileSrc = e.target?.result as string;
+            };
+            reader.readAsDataURL(response);
+          },
+          error: (error: Error) => console.error('Update PDF fields failed:', error),
+        });
+      });
+    }
   }
 
   addFormField(event: MouseEvent): void {

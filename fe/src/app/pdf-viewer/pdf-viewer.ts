@@ -30,6 +30,7 @@ import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
       [activeSidebarView]="activeSidebarView"
       [customToolbar]="toolbarRef.toolbar"
       [customSidebar]="sidebarRef.sidebar"
+      [disableForms]="!toggleEditFormFields"
       (dragover)="dragOver.emit($event)"
       (drop)="drop.emit($event)"
       (pageChange)="pageChange.emit($event)"
@@ -40,6 +41,8 @@ import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
       #toolbarRef
       [sidebarVisible]="sidebarVisible"
       [toggleAddFormField]="toggleAddFormField"
+      [toggleEditFormFields]="toggleEditFormFields"
+      (toggleEditFormFieldsClick)="toggleEditFormFieldsClick.emit()"
       (clearAllFields)="clearAllFields.emit()"
       (toggleAddFormFieldClick)="toggleAddFormFieldClick.emit()"
     ></app-toolbar>
@@ -48,7 +51,7 @@ import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
   `,
 })
 export class PdfViewer {
-  protected _pdfViewerService = inject(PdfViewerService);
+  protected _pdfViewerService: PdfViewerService = inject(PdfViewerService);
 
   sidebarVisible: boolean = true;
   activeSidebarView: PdfSidebarView = PdfSidebarView.THUMBS;
@@ -56,12 +59,14 @@ export class PdfViewer {
   @Input() src!: string;
   @Input() filename!: string;
   @Input() page!: number;
+  @Input() toggleEditFormFields!: boolean;
   @Input() toggleAddFormField!: boolean;
 
   @Output() dragOver = new EventEmitter<DragEvent>();
   @Output() drop = new EventEmitter<DragEvent>();
   @Output() clearAllFields = new EventEmitter<void>();
   @Output() toggleAddFormFieldClick = new EventEmitter<void>();
+  @Output() toggleEditFormFieldsClick = new EventEmitter<void>();
   @Output() pageChange = new EventEmitter<number>();
 
   @ViewChild('toolbarRef', { read: TemplateRef, static: false }) toolbarTpl?: TemplateRef<void>;
