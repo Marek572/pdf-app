@@ -1,11 +1,10 @@
-import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-
-import { ApiService } from './api-service/api-service';
-import { AddFormFieldState } from './add-form-field-state/add-form-field-state';
-import { FileService } from './file-service/file-service';
-import { EditFormFieldsState } from './edit-form-fields-state/edit-form-fields-state';
-import { PdfViewerService } from './pdf-viewer-service/pdf-viewer-service';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { AddFormFieldState } from './services/add-form-field-state/add-form-field-state';
+import { ApiService } from './services/api-service/api-service';
+import { EditFormFieldsState } from './services/edit-form-fields-state/edit-form-fields-state';
+import { FileService } from './services/file-service/file-service';
+import { PdfViewerService } from './services/pdf-viewer-service/pdf-viewer-service';
 
 @Component({
   selector: 'app-root',

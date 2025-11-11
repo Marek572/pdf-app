@@ -6,13 +6,19 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { Toolbar } from './toolbar/toolbar';
-import { Sidebar } from './sidebar/sidebar';
-import { PdfViewer } from './pdf-viewer/pdf-viewer';
+import { Toolbar } from './components/toolbar/toolbar';
+import { PdfViewer } from './components/pdf-viewer/pdf-viewer';
 
 @NgModule({
-  declarations: [AppComponent, Toolbar, Sidebar, PdfViewer],
-  imports: [BrowserModule, AppRoutingModule, MatIconModule, NgxExtendedPdfViewerModule],
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    MatIconModule,
+    NgxExtendedPdfViewerModule,
+    Toolbar,
+    PdfViewer,
+  ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
 })

@@ -8,12 +8,14 @@ import {
   ViewChild,
 } from '@angular/core';
 
-import { PdfSidebarView } from 'ngx-extended-pdf-viewer';
-import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
+import { PdfSidebarView, NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { Toolbar } from '../toolbar/toolbar';
+import { Sidebar } from '../sidebar/sidebar';
+import { PdfViewerService } from '../../services/pdf-viewer-service/pdf-viewer-service';
 
 @Component({
   selector: 'app-pdf-viewer',
-  standalone: false,
+  standalone: true,
   template: `
     <ngx-extended-pdf-viewer
       #pdfViewer
@@ -49,6 +51,7 @@ import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
 
     <app-sidebar #sidebarRef></app-sidebar>
   `,
+  imports: [NgxExtendedPdfViewerModule, Toolbar, Sidebar],
 })
 export class PdfViewer {
   protected _pdfViewerService: PdfViewerService = inject(PdfViewerService);

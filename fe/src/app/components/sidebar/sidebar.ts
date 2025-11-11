@@ -1,8 +1,9 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 @Component({
   selector: 'app-sidebar',
-  standalone: false,
+  standalone: true,
   template: `
     <ng-template #sidebar>
       <div id="sidebarContainer">
@@ -17,6 +18,7 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
       top: 20px;
     }
   `,
+  imports: [NgxExtendedPdfViewerModule],
 })
 export class Sidebar {
   @ViewChild('sidebar', { static: true }) sidebar!: TemplateRef<void>;
