@@ -1,13 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 
+import { BehaviorSubject, Observable, Subject, takeUntil } from 'rxjs';
+
 import { AddFormFieldState } from '../add-form-field-state/add-form-field-state';
-import { ApiService, IUploadPdf } from '../api-service/api-service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { ApiService } from '../api-service/api-service';
+import { UploadPdfResponse } from '../../models/api.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
+  private _destory$ = new Subject<void>();
   private _apiService: ApiService = inject(ApiService);
   private _addFormFieldState: AddFormFieldState = inject(AddFormFieldState);
 
@@ -20,11 +23,6 @@ export class FileService {
   uploadedFileName$: Observable<string> = this._uploadedFileNameSubject.asObservable();
   uploadedFileSrc$: Observable<string> = this._uploadedFileSrcSubject.asObservable();
   fields$: Observable<HTMLInputElement[]> = this._fields.asObservable();
-
-  private _processFile(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-  }
 
   onDragOver(event: DragEvent): void {
     this._processFile(event);
@@ -52,6 +50,11 @@ export class FileService {
     }
   }
 
+  private _processFile(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   private _handleFile(file: File): void {
     this._uploadedFileNameSubject.next(file.name);
     const reader: FileReader = new FileReader();
@@ -60,11 +63,14 @@ export class FileService {
     };
     reader.readAsDataURL(file);
 
-    this._apiService.uploadPdf(file).subscribe({
-      next: (response: IUploadPdf) => {
-        console.log('Upload successful:', response);
-      },
-      error: (error: Error) => console.error('Upload failed:', error),
-    });
+    this._apiService
+      .uploadPdf(file)
+      .pipe(takeUntil(this._destory$))
+      .subscribe({
+        next: (response: UploadPdfResponse) => {
+          console.log('Upload successful:', response);
+        },
+        error: (error: Error) => console.error('Upload failed:', error),
+      });
   }
 }

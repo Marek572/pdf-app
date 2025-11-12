@@ -1,5 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+
+import { Subject, takeUntil } from 'rxjs';
+
 import { AddFormFieldState } from './services/add-form-field-state/add-form-field-state';
 import { ApiService } from './services/api-service/api-service';
 import { EditFormFieldsState } from './services/edit-form-fields-state/edit-form-fields-state';
@@ -15,30 +18,36 @@ import { PdfViewerService } from './services/pdf-viewer-service/pdf-viewer-servi
 export class AppComponent implements OnInit {
   protected readonly title = signal('fe');
 
+  private _destroy$ = new Subject<void>();
   private _apiService: ApiService = inject(ApiService);
   private _addFormFieldState: AddFormFieldState = inject(AddFormFieldState);
   private _editFormFieldsState: EditFormFieldsState = inject(EditFormFieldsState);
   private _pdfViewerService: PdfViewerService = inject(PdfViewerService);
-  public fileService: FileService = inject(FileService);
+  protected fileService: FileService = inject(FileService);
 
   uploadedFileSrc!: string;
   uploadedFileName!: string;
   toggleAddFormField!: boolean;
   toggleEditFormFields!: boolean;
-  currentPage: number = 1;
   fields!: HTMLInputElement[];
+  currentPage: number = 1;
 
   ngOnInit(): void {
-    this._addFormFieldState.toggleAddFormField$.subscribe(
-      (value: boolean) => (this.toggleAddFormField = value),
-    );
-    this._editFormFieldsState.toggleEditFormFields$.subscribe(
-      (value: boolean) => (this.toggleEditFormFields = value),
-    );
-
-    this.fileService.uploadedFileSrc$.subscribe((src: string) => (this.uploadedFileSrc = src));
-    this.fileService.uploadedFileName$.subscribe((name: string) => (this.uploadedFileName = name));
-    this.fileService.fields$.subscribe((fields: HTMLInputElement[]) => (this.fields = fields));
+    this._addFormFieldState.toggleAddFormField$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((value: boolean) => (this.toggleAddFormField = value));
+    this._editFormFieldsState.toggleEditFormFields$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((value: boolean) => (this.toggleEditFormFields = value));
+    this.fileService.uploadedFileSrc$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((src: string) => (this.uploadedFileSrc = src));
+    this.fileService.uploadedFileName$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((name: string) => (this.uploadedFileName = name));
+    this.fileService.fields$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((fields: HTMLInputElement[]) => (this.fields = fields));
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -61,7 +70,7 @@ export class AppComponent implements OnInit {
       const pdfFieldsBlob: Promise<Blob> = this._pdfViewerService.getPdfFieldsAsBlob();
 
       pdfFieldsBlob.then((blob: Blob) => {
-        this._apiService.updatePdfFields(this.uploadedFileName, blob).subscribe({
+        this._apiService.updatePdfFields(blob).subscribe({
           next: (response: Blob) => {
             const reader = new FileReader();
             reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -76,43 +85,42 @@ export class AppComponent implements OnInit {
   }
 
   addFormField(event: MouseEvent): void {
+    if (!this.uploadedFileName) return console.error('No file has been uploaded yet.');
+
     const target: HTMLElement = event.target as HTMLElement;
 
-    if (!this.toggleAddFormField) return;
+    console.log(this.toggleAddFormField, target.classList.contains('textLayer'));
 
-    const canvas = target.parentElement?.querySelector('canvas');
+    if (this.toggleAddFormField && target.classList.contains('textLayer')) {
+      const canvas = target.parentElement!.querySelector('canvas');
+      const rect = canvas!.getBoundingClientRect();
 
-    if (this.toggleAddFormField && canvas) {
-      const rect = canvas.getBoundingClientRect();
-      console.log('Coordinates:', { x: event.clientX - rect.left, y: rect.bottom - event.clientY });
+      const params = {
+        pageIndex: this.currentPage,
+        x: event.clientX - rect.left,
+        y: rect.bottom - event.clientY,
+        width: rect.width,
+        height: rect.height,
+      };
 
-      this._apiService
-        .addPdfField(
-          this.uploadedFileName,
-          this.currentPage,
-          event.clientX - rect.left,
-          rect.bottom - event.clientY,
-        )
-        .subscribe({
-          next: (response: Blob) => {
-            const reader = new FileReader();
-            reader.onload = (e: ProgressEvent<FileReader>) => {
-              this.uploadedFileSrc = e.target?.result as string;
-            };
-            reader.readAsDataURL(response);
-            this._addFormFieldState.setDefaultValue();
-          },
-          error: (error: Error) => console.error('Add form field failed:', error),
-        });
+      this._apiService.addPdfField(params).subscribe({
+        next: (response: Blob) => {
+          const reader = new FileReader();
+          reader.onload = (e: ProgressEvent<FileReader>) => {
+            this.uploadedFileSrc = e.target?.result as string;
+          };
+          reader.readAsDataURL(response);
+          this._addFormFieldState.setDefaultValue();
+        },
+        error: (error: Error) => console.error('Add form field failed:', error),
+      });
     }
   }
 
   clearAllFields(): void {
-    if (!this.uploadedFileName) {
-      return console.error('No file has been uploaded yet.');
-    }
+    if (!this.uploadedFileName) return console.error('No file has been uploaded yet.');
 
-    this._apiService.removeFieldsValues(this.uploadedFileName).subscribe({
+    this._apiService.removeFieldsValues().subscribe({
       next: (response: Blob) => {
         const reader = new FileReader();
         reader.onload = (e: ProgressEvent<FileReader>) => {

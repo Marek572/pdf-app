@@ -1,36 +1,41 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
-import { uploadDir } from '../config/server.config';
 import { addPdfField, getPdfFields, removeFieldsValues } from '../services/pdf.service';
-import { PDFDocument } from 'pdf-lib';
+import { PdfStorageService } from '../services/pdf-storage.service';
+
+const pdfStorage = new PdfStorageService();
 
 export const uploadPdf = async (req: Request, res: Response) => {
+  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+
   try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    return res.status(200).json({ fileName: req.file.filename });
+    pdfStorage.uploadPdf(req.file.buffer, req.file.originalname);
+    return res.status(200).json({
+      message: 'File uploaded successfully',
+      fileName: req.file.originalname,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Failed to upload PDF');
+    return res.status(500).json({ message: 'Failed to upload file' });
   }
 };
 
 export const addPdfFields = async (req: Request, res: Response) => {
-  const fileName: string = req.body.fileName;
   const pageIndex: number = Number(req.body.pageIndex);
   const x: number = Number(req.body.x);
   const y: number = Number(req.body.y);
-
-  console.log(`Adding PDF field to ${fileName} at page ${pageIndex}, position (${x}, ${y})`);
+  const width: number = Number(req.body.width);
+  const height: number = Number(req.body.height);
 
   try {
-    if (!fileName) return res.status(400).json({ message: 'No filename provided' });
+    if (!pdfStorage.hasPdf())
+      return res.status(400).json({ message: 'No PDF file uploaded. Please upload a file first.' });
 
-    const filePath = path.join(uploadDir, fileName);
-    const fileBuffer = fs.readFileSync(filePath);
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
 
-    const modifiedBuffer = await addPdfField(fileBuffer, pageIndex, x, y);
-    fs.writeFileSync(filePath, modifiedBuffer);
+    const modifiedBuffer = await addPdfField(fileBuffer, pageIndex, x, y, width, height);
+
+    pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
@@ -43,19 +48,17 @@ export const addPdfFields = async (req: Request, res: Response) => {
 
 export const updatePdfFields = async (req: Request, res: Response) => {
   try {
-    const file = req.file;
+    if (!pdfStorage.hasPdf())
+      return res.status(400).json({ message: 'No original PDF file. Please upload a file first.' });
 
-    if (!file) return res.status(400).json({ message: 'Filename or file missing' });
+    const fileName = pdfStorage.getFileName();
+    const modifiedBuffer = req.file!.buffer;
 
-    const fileName = file.filename;
-    const filePath = file.path;
-    const fileBuffer = fs.readFileSync(filePath);
-
-    fs.writeFileSync(filePath, fileBuffer);
+    pdfStorage.updateCurrentPdf(modifiedBuffer);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.send(Buffer.from(fileBuffer));
+    res.send(Buffer.from(modifiedBuffer));
   } catch (err) {
     console.error(err);
     res.status(500).send('Failed to update PDF fields');
@@ -63,23 +66,21 @@ export const updatePdfFields = async (req: Request, res: Response) => {
 };
 
 export const clearPdfFields = async (req: Request, res: Response) => {
-  const { fileName } = req.params;
-
   try {
-    if (!fileName) return res.status(400).json({ message: 'No filename provided' });
+    if (!pdfStorage.hasPdf())
+      return res.status(400).json({ message: 'No PDF file uploaded. Please upload a file first.' });
 
-    const filePath = path.join(uploadDir, fileName);
-    const fileBuffer = fs.readFileSync(filePath);
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
+
     const fields = await getPdfFields(fileBuffer);
 
-    console.log(`Found ${fields.length} fields in PDF ${fileName}`);
-
-    if (fields.length === 0) {
+    if (fields.length === 0)
       return res.status(400).json({ error: { message: 'No form fields found in the PDF' } });
-    }
 
     const modifiedBuffer = await removeFieldsValues(fileBuffer);
-    fs.writeFileSync(filePath, modifiedBuffer);
+
+    pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);

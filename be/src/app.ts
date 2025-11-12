@@ -1,16 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+
 import pdfRoutes from './routes/pdf.routes';
-import { uploadDir, PORT } from './config/server.config';
-import { cleanUploadDir, ensureUploadDir } from './utils';
+import { PORT } from './config/server.config';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-ensureUploadDir(uploadDir);
-cleanUploadDir(uploadDir);
 
 //Routes
 app.use('/pdf', pdfRoutes);

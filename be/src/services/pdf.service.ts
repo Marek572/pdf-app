@@ -20,21 +20,23 @@ export async function addPdfField(
   fileBuffer: Buffer,
   pageIndex: number,
   x: number,
-  y: number
+  y: number,
+  width: number,
+  height: number
 ): Promise<Uint8Array> {
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
   const form: PDFForm = pdfDoc.getForm();
   const page: PDFPage = pdfDoc.getPage(pageIndex - 1);
-  console.log(`position (${x}, ${y})`);
-  console.log(`page size (${page.getWidth()}, ${page.getHeight()})`);
 
-  const scalingFactor = 1.33;
+  const scaleX = page.getWidth() / width;
+  const scaleY = page.getHeight() / height;
+
   const datetime: number = new Date().valueOf();
   const textField: PDFTextField = form.createTextField(`newTextField_${datetime}`);
   textField.setText('Sample Text');
   textField.addToPage(page, {
-    x: x / scalingFactor,
-    y: y / scalingFactor,
+    x: x * scaleX,
+    y: y * scaleY,
     width: 100,
     height: 25,
     textColor: rgb(0, 0, 0),

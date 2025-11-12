@@ -10,8 +10,8 @@ import {
 const router = express.Router();
 
 router.post('/upload', uploadMiddleware.single('file'), uploadPdf);
-router.put('/:fileName/addField', uploadMiddleware.none(), addPdfFields);
-router.put('/:fileName/updateFields', uploadMiddleware.single('file'), updatePdfFields);
-router.put('/:fileName/clearFields', clearPdfFields);
+router.put('/addField', uploadMiddleware.single('body'), addPdfFields);
+router.put('/updateFields', uploadMiddleware.single('file'), updatePdfFields);
+router.put('/clearFields', clearPdfFields);
 
 export default router;
