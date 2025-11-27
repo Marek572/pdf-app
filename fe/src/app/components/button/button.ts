@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
@@ -9,18 +9,12 @@ import { MatIcon } from '@angular/material/icon';
     <button
       mat-icon-button
       class="toolbarButton customButton"
-      [title]="btnTitle"
-      [disabled]="isDisabled"
       [ngClass]="{
         enabled: !isDisabled,
         disabled: isDisabled,
         active: isActive === true,
         inActive: isActive === false,
       }"
-      [attr.isActive]="isActive"
-      [attr.matIcon]="btnIcon"
-      [attr.iconIconToggle]="iconIconToggle"
-      (click)="clickEvent.emit()"
     >
       <mat-icon>
         {{ btnIcon }}
@@ -56,9 +50,29 @@ export class Button {
   @Input() btnTitle!: string;
   @Input() btnIcon!: string;
 
-  @Input() isDisabled: boolean | undefined;
-  @Input() isActive: boolean | undefined;
-  @Input() iconIconToggle: boolean | undefined;
+  @Input() isDisabled?: boolean;
+  @Input() isActive?: boolean;
 
   @Output() clickEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @HostBinding('attr.title') get title() {
+    return this.btnTitle;
+  }
+
+  @HostBinding('attr.disabled') get disabledAttr() {
+    return this.isDisabled ? '' : null;
+  }
+
+  @HostBinding('attr.isActive') get isActiveAttr() {
+    return this.isActive ? '' : null;
+  }
+
+  @HostBinding('attr.mat-icon') get matIcon() {
+    return this.btnIcon;
+  }
+
+  @HostListener('click')
+  onClick() {
+    if (!this.isDisabled) this.clickEvent.emit();
+  }
 }
