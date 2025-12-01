@@ -25,6 +25,7 @@ export const addPdfFields = async (req: Request, res: Response) => {
   const y: number = Number(req.body.y);
   const width: number = Number(req.body.width);
   const height: number = Number(req.body.height);
+  const rotation: number = Number(req.body.rotation);
 
   try {
     if (!pdfStorage.hasPdf())
@@ -33,7 +34,7 @@ export const addPdfFields = async (req: Request, res: Response) => {
     const fileName = pdfStorage.getFileName();
     const fileBuffer = pdfStorage.getCurrentPdf();
 
-    const modifiedBuffer = await addPdfField(fileBuffer, pageIndex, x, y, width, height);
+    const modifiedBuffer = await addPdfField(fileBuffer, pageIndex, x, y, width, height, rotation);
 
     pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
 

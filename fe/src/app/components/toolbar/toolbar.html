@@ -20,23 +20,23 @@
       <span class="toolbarDivider"></span>
       <app-button
         [btnTitle]="'Add form field'"
-        [btnIcon]="toggleAddFormField ? 'close' : 'add'"
-        [isDisabled]="toggleEditFormFields"
-        (clickEvent)="toggleAddFormFieldClick.emit()"
+        [btnIcon]="(toggleAddFormField$ | async) ? 'close' : 'add'"
+        [isDisabled]="(toggleEditFormFields$ | async) === true"
+        (clickEvent)="onToggleAddFormFieldClick()"
       ></app-button>
       <span class="toolbarDivider"></span>
       <app-button
         [btnTitle]="'Enable fields editing'"
         [btnIcon]="'editing'"
-        [isActive]="toggleEditFormFields"
-        (clickEvent)="toggleEditFormFieldsClick.emit()"
+        [isActive]="(toggleEditFormFields$ | async) === true"
+        (clickEvent)="onToggleEditFormFieldsClick()"
       ></app-button>
       <span class="toolbarDivider"></span>
       <app-button
         [btnTitle]="'Clear all fields'"
         [btnIcon]="'delete'"
-        [isDisabled]="!toggleEditFormFields"
-        (clickEvent)="clearAllFields.emit()"
+        [isDisabled]="(toggleEditFormFields$ | async) === false"
+        (clickEvent)="clearAllFields()"
       ></app-button>
     </div>
   </div>

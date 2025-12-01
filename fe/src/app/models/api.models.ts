@@ -1,3 +1,5 @@
+import { PdfRotation } from './types';
+
 export interface UploadPdfResponse {
   fileName: string;
 }
@@ -8,4 +10,5 @@ export interface AddFieldRequest {
   y: number;
   width: number;
   height: number;
+  rotation: PdfRotation;
 }
