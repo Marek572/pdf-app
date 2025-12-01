@@ -50,6 +50,14 @@ export class FileService {
     }
   }
 
+  updateFileFromBlob(blob: Blob): void {
+    const reader: FileReader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      this._uploadedFileSrcSubject.next(e.target?.result as string);
+    };
+    reader.readAsDataURL(blob);
+  }
+
   private _processFile(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -57,11 +65,7 @@ export class FileService {
 
   private _handleFile(file: File): void {
     this._uploadedFileNameSubject.next(file.name);
-    const reader: FileReader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      this._uploadedFileSrcSubject.next(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    this.updateFileFromBlob(file);
 
     this._apiService
       .uploadPdf(file)

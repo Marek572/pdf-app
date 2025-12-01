@@ -31,6 +31,7 @@ export class ApiService {
       y: params.y.toString(),
       width: params.width.toString(),
       height: params.height.toString(),
+      rotation: params.rotation.toString(),
     };
     const formData: FormData = new FormData();
 
