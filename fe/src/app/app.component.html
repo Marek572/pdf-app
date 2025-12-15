@@ -3,32 +3,20 @@
     <div
       class="drop-zone"
       (click)="fileInput.click()"
-      (dragover)="fileService.onDragOver($event)"
-      (dragleave)="fileService.onDragLeave($event)"
-      (drop)="fileService.onDrop($event)"
+      (dragover)="_fileService.onDragOver($event)"
+      (dragleave)="_fileService.onDragLeave($event)"
+      (drop)="_fileService.onDrop($event)"
     >
       <p>Drag and drop a PDF file here or click to upload</p>
       <input
         #fileInput
         type="file"
         accept=".pdf"
-        (change)="fileService.onUploadFile($event)"
+        (change)="_fileService.onUploadFile($event)"
         hidden
       />
     </div>
   </main>
 } @else {
-  <app-pdf-viewer
-    [src]="uploadedFileSrc!"
-    [filename]="uploadedFileName"
-    [toggleEditFormFields]="toggleEditFormFields"
-    [toggleAddFormField]="toggleAddFormField"
-    (click)="addFormField($event)"
-    (dragOver)="fileService.onDragOver($event)"
-    (drop)="fileService.onDrop($event)"
-    (clearAllFields)="clearAllFields()"
-    (toggleEditFormFieldsClick)="toggleEditFormFieldsClick()"
-    (toggleAddFormFieldClick)="toggleAddFormFieldClick()"
-    [(page)]="currentPage"
-  ></app-pdf-viewer>
+  <app-pdf-viewer></app-pdf-viewer>
 }
