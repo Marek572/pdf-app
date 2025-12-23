@@ -12,3 +12,15 @@ export interface AddFieldRequest {
   height: number;
   rotation: PdfRotation;
 }
+
+export interface FieldSizeChangeRequest {
+  pageWidth: number;
+  pageHeight: number;
+  width: number;
+  height: number;
+}
+
+export interface PageSize {
+  width: number;
+  height: number;
+}

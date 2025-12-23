@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
-import { addPdfField, getPdfFields, removeFieldsValues } from '../services/pdf.service';
+import {
+  addPdfField,
+  getPdfFields,
+  removeFieldByName,
+  removeFieldsValues,
+  updateFieldSize,
+} from '../services/pdf.service';
 import { PdfStorageService } from '../services/pdf-storage.service';
 
 const pdfStorage = new PdfStorageService();
@@ -89,5 +95,62 @@ export const clearPdfFields = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Failed to remove field values');
+  }
+};
+
+export const removePdfField = async (req: Request, res: Response) => {
+  const fieldName: string = req.params.fieldName!;
+
+  try {
+    if (!pdfStorage.hasPdf())
+      return res.status(400).json({ message: 'No PDF file uploaded. Please upload a file first.' });
+
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
+
+    const modifiedBuffer = await removeFieldByName(fileBuffer, fieldName);
+
+    pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.send(Buffer.from(modifiedBuffer));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to remove PDF field');
+  }
+};
+
+export const updatePdfFieldSize = async (req: Request, res: Response) => {
+  const fieldName: string = req.params.fieldName!;
+  const pageWidth: number = Number(req.body.pageWidth);
+  const pageHeight: number = Number(req.body.pageHeight);
+  const width: number = Number(req.body.width);
+  const height: number = Number(req.body.height);
+
+  try {
+    if (!pdfStorage.hasPdf())
+      return res.status(400).json({ message: 'No PDF file uploaded. Please upload a file first.' });
+
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
+
+    const modifiedBuffer = await updateFieldSize(
+      fileBuffer,
+      fieldName,
+      pageWidth,
+      pageHeight,
+      width,
+      height
+    );
+
+    pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.send(Buffer.from(modifiedBuffer));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to update PDF field size');
   }
 };

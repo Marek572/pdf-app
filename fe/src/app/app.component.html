@@ -3,18 +3,12 @@
     <div
       class="drop-zone"
       (click)="fileInput.click()"
-      (dragover)="_fileService.onDragOver($event)"
-      (dragleave)="_fileService.onDragLeave($event)"
-      (drop)="_fileService.onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
     >
       <p>Drag and drop a PDF file here or click to upload</p>
-      <input
-        #fileInput
-        type="file"
-        accept=".pdf"
-        (change)="_fileService.onUploadFile($event)"
-        hidden
-      />
+      <input #fileInput type="file" accept=".pdf" (change)="onFileSelected($event)" hidden />
     </div>
   </main>
 } @else {

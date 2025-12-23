@@ -58,6 +58,35 @@ export async function addPdfField(
       break;
   }
 
+  // const { xPosition, yPosition } = (() => {
+  //   switch (rotation) {
+  //     case 0:
+  //     default:
+  //       return {
+  //         xPosition: x * (page.getWidth() / width),
+  //         yPosition: y * (page.getHeight() / height),
+  //       };
+  //     case 90:
+  //       return {
+  //         xPosition: page.getWidth() - y * (page.getWidth() / height),
+  //         yPosition: x * (page.getHeight() / width),
+  //       };
+
+  //     case 180:
+  //       return {
+  //         xPosition: page.getWidth() - x * (page.getWidth() / width),
+  //         yPosition: page.getHeight() - y * (page.getHeight() / height),
+  //       };
+
+  //     case 270:
+  //       return {
+  //         xPosition: y * (page.getWidth() / height),
+  //         yPosition: page.getHeight() - x * (page.getHeight() / width),
+  //       };
+
+  //   }
+  // })();
+
   const newRotation: Rotation = {
     type: RotationTypes.Degrees,
     angle: rotation,
@@ -92,29 +121,98 @@ export async function getPdfFields(fileBuffer: Buffer): Promise<IGetFields[]> {
 
 export async function removeFieldsValues(fileBuffer: Buffer): Promise<Uint8Array> {
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
+  const form: PDFForm = pdfDoc.getForm();
+
+  form.getFields().forEach((field: PDFField) => clearFieldsValues(field));
+
+  const pdfBytes: Uint8Array = await pdfDoc.save();
+  return pdfBytes;
+}
+
+function clearFieldsValues(field: PDFField): void {
+  switch (true) {
+    case field instanceof PDFTextField:
+      field.setText('');
+      break;
+    case field instanceof PDFCheckBox:
+      field.uncheck();
+      break;
+    case field instanceof PDFDropdown:
+      field.clear();
+      break;
+    case field instanceof PDFRadioGroup:
+      field.clear();
+      break;
+    case field instanceof PDFOptionList:
+      field.clear();
+      break;
+    default:
+      console.error('Unsupported field type');
+  }
+}
+
+export async function removeFieldByName(
+  fileBuffer: Buffer,
+  fieldName: string
+): Promise<Uint8Array> {
+  const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
 
   const form: PDFForm = pdfDoc.getForm();
-  form.getFields().forEach((field: PDFField) => {
-    switch (true) {
-      case field instanceof PDFTextField:
-        field.setText('');
-        break;
-      case field instanceof PDFCheckBox:
-        field.uncheck();
-        break;
-      case field instanceof PDFDropdown:
-        field.clear();
-        break;
-      case field instanceof PDFRadioGroup:
-        field.clear();
-        break;
-      case field instanceof PDFOptionList:
-        field.clear();
-        break;
-      default:
-        console.error('Unsupported field type');
-    }
-  });
+  const field: PDFField | null = form.getField(fieldName);
+
+  if (field) {
+    clearFieldsValues(field);
+    form.removeField(field);
+  }
+
+  const pdfBytes: Uint8Array = await pdfDoc.save();
+  return pdfBytes;
+}
+
+export async function updateFieldSize(
+  fileBuffer: Buffer,
+  fieldName: string,
+  canvasWidth: number,
+  canvasHeight: number,
+  width: number,
+  height: number
+): Promise<Uint8Array> {
+  const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
+
+  const form: PDFForm = pdfDoc.getForm();
+  const field: PDFField | null = form.getField(fieldName);
+
+  if (field) {
+    const widgets = field.acroField.getWidgets();
+    const pages = pdfDoc.getPages();
+
+    widgets.forEach((widget) => {
+      const pageRef = widget.P();
+      let page: PDFPage | undefined;
+
+      if (pageRef) {
+        page = pages.find(
+          (p) =>
+            p.ref.objectNumber === pageRef.objectNumber &&
+            p.ref.generationNumber === pageRef.generationNumber
+        );
+      }
+
+      if (page) {
+        const { width: pageWidth, height: pageHeight } = page.getSize();
+        const angle = page.getRotation().angle;
+
+        const scaleX = pageWidth / canvasWidth;
+        const scaleY = pageHeight / canvasHeight;
+
+        const newWidth = width * scaleX;
+        const newHeight = height * scaleY;
+
+        const { x, y } = widget.getRectangle();
+        widget.setRectangle({ x, y, width: newWidth, height: newHeight });
+      }
+    });
+  }
 
   const pdfBytes: Uint8Array = await pdfDoc.save();
   return pdfBytes;
