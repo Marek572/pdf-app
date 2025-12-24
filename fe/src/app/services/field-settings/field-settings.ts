@@ -7,7 +7,7 @@ import { ApiService } from '../api-service/api-service';
 import { FileService } from '../file-service/file-service';
 import { PageSize } from '../../models/api.models';
 import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
-import { PdfRotation } from '../../models/types';
+import { PdfRotation, PdfRotationAngle } from '../../models/types';
 
 export interface FieldSettingsState {
   isOpen: boolean;
@@ -127,7 +127,8 @@ export class FieldSettings {
         return;
       }
 
-      const isHorizontal = rotation === 90 || rotation === 270;
+      const isHorizontal =
+        rotation === PdfRotationAngle.Deg90 || rotation === PdfRotationAngle.Deg270;
 
       const offsetWidth = isHorizontal
         ? currentState.field?.offsetHeight

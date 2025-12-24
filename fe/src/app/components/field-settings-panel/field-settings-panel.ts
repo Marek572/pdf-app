@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FieldSettings } from '../../services/field-settings/field-settings';
 import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 import { PdfViewerService } from '../../services/pdf-viewer-service/pdf-viewer-service';
-import { PdfRotation } from '../../models/types';
+import { PdfRotation, PdfRotationAngle } from '../../models/types';
 
 @Component({
   selector: 'app-field-setting-panel',
@@ -50,6 +50,6 @@ export class FieldSettingsPanel {
 
   isHorizontal(): boolean {
     const rotation: PdfRotation = this._pdfViewerService.getRotation();
-    return rotation === 90 || rotation === 270;
+    return rotation === PdfRotationAngle.Deg90 || rotation === PdfRotationAngle.Deg270;
   }
 }
