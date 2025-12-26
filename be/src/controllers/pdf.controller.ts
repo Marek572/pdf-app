@@ -121,8 +121,6 @@ export const updatePdfFieldSize = async (req: Request, res: Response) => {
       height,
     };
 
-    console.log('Decoded Field Name:', fieldName);
-
     const modifiedBuffer = await updateFieldSize(fileBuffer, fieldName, updatedField);
     sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
   } catch (err) {

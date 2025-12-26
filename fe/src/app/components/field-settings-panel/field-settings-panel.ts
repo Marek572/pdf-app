@@ -32,14 +32,15 @@ export class FieldSettingsPanel {
     this._fieldSettings.setPreventClose(true);
 
     const dialogRef = this.dialog.open(ConfirmDialog, {
+      disableClose: true,
       data: {
         dialogTitle: 'Potwierdzenie usunięcia',
         dialogText: 'Czy na pewno chcesz usunąć to pole?',
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === true) this._fieldSettings.removeField();
+    dialogRef.afterClosed().subscribe((wasClosed) => {
+      if (wasClosed) this._fieldSettings.removeField();
       this._fieldSettings.setPreventClose(false);
     });
   }

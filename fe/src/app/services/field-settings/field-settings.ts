@@ -62,8 +62,6 @@ export class FieldSettings {
       pageSize,
       preventClose: false,
     });
-
-    console.log('Opened field settings panel for field:', field);
   }
 
   setPreventClose(prevent: boolean): void {
@@ -100,7 +98,6 @@ export class FieldSettings {
         return;
       }
       const fieldName = field.getAttribute('name') || '';
-      console.log('Removing field with name:', fieldName);
 
       this._apiService
         .removeField(fieldName)

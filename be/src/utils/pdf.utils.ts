@@ -56,7 +56,7 @@ function isClearableField(field: PDFField): field is PDFDropdown | PDFRadioGroup
   );
 }
 
-export function clearFieldsValues(field: PDFField): void {
+export function clearFieldsValue(field: PDFField): void {
   if (field instanceof PDFTextField) {
     field.setText('');
   } else if (field instanceof PDFCheckBox) {

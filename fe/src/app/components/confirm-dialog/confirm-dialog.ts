@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
     <h2 mat-dialog-title>{{ data.dialogTitle }}</h2>
     <mat-dialog-content>{{ data.dialogText }}</mat-dialog-content>
     <mat-dialog-actions>
-      <button matButton [mat-dialog-close]>Nie</button>
+      <button matButton [mat-dialog-close]="false">Nie</button>
       <button matButton [mat-dialog-close]="true" cdkFocusInitial>Tak</button>
     </mat-dialog-actions>
   `,
