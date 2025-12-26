@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { uploadMiddleware } from '../upload.middleware';
 import {
   uploadPdf,
@@ -12,10 +13,11 @@ import {
 const router = express.Router();
 
 router.post('/upload', uploadMiddleware.single('file'), uploadPdf);
-router.put('/addField', uploadMiddleware.single('body'), addPdfFields);
-router.put('/updateFields', uploadMiddleware.single('file'), updatePdfFields);
-router.put('/clearFields', clearPdfFields);
-router.delete('/removeField/:fieldName', removePdfField);
-router.put('/updateFieldSize/:fieldName', uploadMiddleware.single('body'), updatePdfFieldSize);
+
+router.post('/fields', addPdfFields);
+router.put('/fields', uploadMiddleware.single('file'), updatePdfFields);
+router.delete('/fields/values', clearPdfFields);
+router.delete('/fields/:fieldName', removePdfField);
+router.put('/fields/:fieldName', updatePdfFieldSize);
 
 export default router;

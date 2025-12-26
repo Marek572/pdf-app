@@ -1,4 +1,4 @@
-enum HTTPStatusCodes {
+export enum HTTPStatusCodes {
   OK = 200,
   Created = 201,
   NoContent = 204,

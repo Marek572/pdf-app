@@ -1,11 +1,11 @@
 import { ElementRef, inject, Injectable, Injector } from '@angular/core';
 import { CdkOverlayOrigin } from '@angular/cdk/overlay';
 
-import { BehaviorSubject, Observable, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, take } from 'rxjs';
 
 import { ApiService } from '../api-service/api-service';
 import { FileService } from '../file-service/file-service';
-import { PageSize } from '../../models/api.models';
+import { FieldSizeChangeRequest, PageSize } from '../../models/api.models';
 import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
 import { PdfRotation, PdfRotationAngle } from '../../models/types';
 
@@ -48,12 +48,12 @@ export class FieldSettings {
     const pageContainer = field.closest('.page') as HTMLElement | null;
     const canvas = pageContainer?.querySelector('canvas') as HTMLCanvasElement | null;
 
-    let pageSize = { width: 0, height: 0 };
-
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      pageSize = { width: rect.width, height: rect.height };
-    }
+    const pageSize = canvas
+      ? {
+          width: canvas.getBoundingClientRect().width,
+          height: canvas.getBoundingClientRect().height,
+        }
+      : { width: 0, height: 0 };
 
     this._fieldSettingsState.next({
       isOpen: true,
@@ -62,6 +62,8 @@ export class FieldSettings {
       pageSize,
       preventClose: false,
     });
+
+    console.log('Opened field settings panel for field:', field);
   }
 
   setPreventClose(prevent: boolean): void {
@@ -97,7 +99,8 @@ export class FieldSettings {
         console.error('No field found inside the selected element');
         return;
       }
-      const fieldName: string = field.attributes.getNamedItem('name')?.value || '';
+      const fieldName = field.getAttribute('name') || '';
+      console.log('Removing field with name:', fieldName);
 
       this._apiService
         .removeField(fieldName)
@@ -148,8 +151,15 @@ export class FieldSettings {
         const payloadWidth = isHorizontal ? fieldHeight : fieldWidth;
         const payloadHeight = isHorizontal ? fieldWidth : fieldHeight;
 
+        const params: FieldSizeChangeRequest = {
+          canvasWidth: pageSize.width,
+          canvasHeight: pageSize.height,
+          width: payloadWidth,
+          height: payloadHeight,
+        };
+
         this._apiService
-          .updateFieldSize(fieldName, pageSize, payloadWidth, payloadHeight)
+          .updateFieldSize(fieldName, params)
           .pipe(take(1))
           .subscribe({
             next: (data) => {

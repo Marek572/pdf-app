@@ -8,14 +8,14 @@ export interface AddFieldRequest {
   pageIndex: number;
   x: number;
   y: number;
-  width: number;
-  height: number;
+  canvasWidth: number;
+  canvasHeight: number;
   rotation: PdfRotation;
 }
 
 export interface FieldSizeChangeRequest {
-  pageWidth: number;
-  pageHeight: number;
+  canvasWidth: number;
+  canvasHeight: number;
   width: number;
   height: number;
 }

@@ -114,8 +114,8 @@ export class PdfViewer implements OnInit, OnDestroy {
         pageIndex: this.page,
         x: event.clientX - rect.left,
         y: rect.bottom - event.clientY,
-        width: rect.width,
-        height: rect.height,
+        canvasWidth: rect.width,
+        canvasHeight: rect.height,
         rotation: this._pdfViewerService.getRotation(),
       };
 
