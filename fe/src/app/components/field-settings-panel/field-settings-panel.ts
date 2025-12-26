@@ -19,7 +19,7 @@ import { PdfRotation, PdfRotationAngle } from '../../models/types';
   imports: [OverlayModule, MatCardModule, MatInputModule, MatButtonModule],
 })
 export class FieldSettingsPanel {
-  readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(MatDialog);
   private _fieldSettings = inject(FieldSettings);
   private _pdfViewerService = inject(PdfViewerService);
   state = toSignal(this._fieldSettings.fieldSettings$);

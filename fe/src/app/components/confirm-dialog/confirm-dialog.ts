@@ -13,7 +13,6 @@ import { MatButtonModule } from '@angular/material/button';
       <button matButton [mat-dialog-close]="true" cdkFocusInitial>Tak</button>
     </mat-dialog-actions>
   `,
-  styles: ``,
   imports: [MatDialogModule, MatButtonModule],
 })
 export class ConfirmDialog {
