@@ -71,9 +71,6 @@ export class FileService {
       .uploadPdf(file)
       .pipe(takeUntil(this._destory$))
       .subscribe({
-        next: (response: UploadPdfResponse) => {
-          console.log('Upload successful:', response);
-        },
         error: (error: Error) => console.error('Upload failed:', error),
       });
   }

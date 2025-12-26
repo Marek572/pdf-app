@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment.development';
-import { AddFieldRequest, UploadPdfResponse } from '../../models/api.models';
+import { AddFieldRequest, FieldSizeChangeRequest } from '../../models/api.models';
 
 @Injectable({
   providedIn: 'root',
@@ -12,46 +12,57 @@ import { AddFieldRequest, UploadPdfResponse } from '../../models/api.models';
 export class ApiService {
   private _http: HttpClient = inject(HttpClient);
 
+  private readonly _baseUrl: string = environment.apiUrl;
   private readonly _controllerPath: string = 'pdf';
 
-  uploadPdf(file: File): Observable<UploadPdfResponse> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/upload`;
+  uploadPdf(file: File): Observable<Blob> {
     const formData: FormData = new FormData();
     formData.append('file', file);
 
-    return this._http.post<UploadPdfResponse>(url, formData);
+    return this._post('upload', formData, 'blob');
   }
 
   addPdfField(params: AddFieldRequest): Observable<Blob> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/addField`;
-
-    const fields: { [key: string]: string } = {
-      pageIndex: params.pageIndex.toString(),
-      x: params.x.toString(),
-      y: params.y.toString(),
-      width: params.width.toString(),
-      height: params.height.toString(),
-      rotation: params.rotation.toString(),
-    };
-    const formData: FormData = new FormData();
-
-    for (const key in fields) {
-      formData.append(key, fields[key]);
-    }
-
-    return this._http.put(url, formData, { responseType: 'blob' });
+    return this._post('fields', params, 'blob');
   }
 
   updatePdfFields(blob: Blob): Observable<Blob> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/updateFields`;
     const formData: FormData = new FormData();
     formData.append('file', blob);
 
-    return this._http.put(url, formData, { responseType: 'blob' });
+    return this._put('fields', formData, 'blob');
   }
 
   removeFieldsValues(): Observable<Blob> {
-    const url: string = `${environment.apiUrl}/${this._controllerPath}/clearFields`;
-    return this._http.put(url, {}, { responseType: 'blob' });
+    return this._delete('fields/values', 'blob');
+  }
+
+  removeField(fieldName: string): Observable<Blob> {
+    return this._delete(`fields/${encodeURIComponent(fieldName)}`, 'blob');
+  }
+
+  updateFieldSize(fieldName: string, params: FieldSizeChangeRequest): Observable<Blob> {
+    return this._put(`fields/${encodeURIComponent(fieldName)}`, params, 'blob');
+  }
+
+  private _post<T>(endpoint: string, body: any, responseType?: 'blob'): Observable<T> {
+    const url: string = `${this._baseUrl}/${this._controllerPath}/${endpoint}`;
+
+    const options = responseType ? { responseType } : {};
+    return this._http.post(url, body, options as any) as Observable<T>;
+  }
+
+  private _put<T>(endpoint: string, body: any, responseType?: 'blob'): Observable<T> {
+    const url: string = `${this._baseUrl}/${this._controllerPath}/${endpoint}`;
+
+    const options = responseType ? { responseType } : {};
+    return this._http.put(url, body, options as any) as Observable<T>;
+  }
+
+  private _delete<T>(endpoint: string, responseType?: 'blob'): Observable<T> {
+    const url: string = `${this._baseUrl}/${this._controllerPath}/${endpoint}`;
+
+    const options = responseType ? { responseType } : {};
+    return this._http.delete(url, options as any) as Observable<T>;
   }
 }
