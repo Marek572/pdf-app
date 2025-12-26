@@ -10,7 +10,12 @@ import {
 } from 'pdf-lib';
 
 import { GetPdfFields, NewPdfFieldParams, UpdatePdfFieldSizeParams } from '../models/interfaces';
-import { calculatePdfCoordinates, clearFieldsValue, mapFormFields } from '../utils/pdf.utils';
+import {
+  calculatePdfCoordinates,
+  clearAllFieldsValues,
+  clearFieldsValue,
+  mapFormFields,
+} from '../utils/pdf.utils';
 
 const DEFAULT_FIELD_WIDTH = 100;
 const DEFAULT_FIELD_HEIGHT = 25;
@@ -68,7 +73,7 @@ export async function removeFieldsValues(fileBuffer: Buffer): Promise<Uint8Array
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
   const form: PDFForm = pdfDoc.getForm();
 
-  form.getFields().forEach((field: PDFField) => clearFieldsValue(field));
+  clearAllFieldsValues(form);
 
   return await pdfDoc.save();
 }

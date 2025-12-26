@@ -68,6 +68,10 @@ export function clearFieldsValue(field: PDFField): void {
   }
 }
 
+export function clearAllFieldsValues(form: PDFForm): void {
+  form.getFields().forEach((field: PDFField) => clearFieldsValue(field));
+}
+
 export function mapFormFields(form: PDFForm): GetPdfFields[] {
   const fields = form.getFields();
   return fields.map((field) => ({
