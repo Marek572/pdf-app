@@ -19,50 +19,47 @@ export class ApiService {
     const formData: FormData = new FormData();
     formData.append('file', file);
 
-    return this._post('upload', formData, 'blob');
+    return this._request('post', 'file', formData, 'blob');
   }
 
-  addPdfField(params: AddFieldRequest): Observable<Blob> {
-    return this._post('fields', params, 'blob');
-  }
-
-  updatePdfFields(blob: Blob): Observable<Blob> {
+  updatePdf(blob: Blob): Observable<Blob> {
     const formData: FormData = new FormData();
     formData.append('file', blob);
 
-    return this._put('fields', formData, 'blob');
+    return this._request('put', 'file', formData, 'blob');
+  }
+
+  addPdfField(params: AddFieldRequest): Observable<Blob> {
+    return this._request('post', 'fields', params, 'blob');
   }
 
   removeFieldsValues(): Observable<Blob> {
-    return this._delete('fields/values', 'blob');
+    return this._request('delete', 'fields/values', null, 'blob');
   }
 
   removeField(fieldName: string): Observable<Blob> {
-    return this._delete(`fields/${encodeURIComponent(fieldName)}`, 'blob');
+    const fieldNameEncoded = encodeURIComponent(fieldName);
+
+    return this._request('delete', `fields/${fieldNameEncoded}`, null, 'blob');
   }
 
   updateFieldSize(fieldName: string, params: FieldSizeChangeRequest): Observable<Blob> {
-    return this._put(`fields/${encodeURIComponent(fieldName)}`, params, 'blob');
+    const fieldNameEncoded = encodeURIComponent(fieldName);
+
+    return this._request('patch', `fields/${fieldNameEncoded}`, params, 'blob');
   }
 
-  private _post<T>(endpoint: string, body: any, responseType?: 'blob'): Observable<T> {
+  private _request<T>(
+    method: string,
+    endpoint: string,
+    body: any = null,
+    responseType?: 'blob',
+  ): Observable<T> {
     const url: string = `${this._baseUrl}/${this._controllerPath}/${endpoint}`;
+    const optionsBody = body ? { body } : {};
+    const optionsResponseType = responseType ? { responseType } : {};
+    const options = { ...optionsBody, ...optionsResponseType };
 
-    const options = responseType ? { responseType } : {};
-    return this._http.post(url, body, options as any) as Observable<T>;
-  }
-
-  private _put<T>(endpoint: string, body: any, responseType?: 'blob'): Observable<T> {
-    const url: string = `${this._baseUrl}/${this._controllerPath}/${endpoint}`;
-
-    const options = responseType ? { responseType } : {};
-    return this._http.put(url, body, options as any) as Observable<T>;
-  }
-
-  private _delete<T>(endpoint: string, responseType?: 'blob'): Observable<T> {
-    const url: string = `${this._baseUrl}/${this._controllerPath}/${endpoint}`;
-
-    const options = responseType ? { responseType } : {};
-    return this._http.delete(url, options as any) as Observable<T>;
+    return this._http.request<T>(method, url, options as any) as Observable<T>;
   }
 }

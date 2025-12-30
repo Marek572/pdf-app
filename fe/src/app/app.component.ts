@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
         filter((isEditing) => !isEditing),
         filter(() => !!this.uploadedFileSrc),
         switchMap(() => this._pdfViewerService.getPdfFieldsAsBlob()),
-        switchMap((blob) => this._apiService.updatePdfFields(blob)),
+        switchMap((blob) => this._apiService.updatePdf(blob)),
       )
       .subscribe({
         next: (response: Blob) => this._fileService.updateFileFromBlob(response),
