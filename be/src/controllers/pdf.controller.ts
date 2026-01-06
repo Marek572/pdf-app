@@ -5,11 +5,11 @@ import {
   getPdfFields,
   removeFieldByName,
   removeFieldsValues,
-  updateFieldSize,
+  updateField,
 } from '../services/pdf.service';
 import { PdfStorageService } from '../services/pdf-storage.service';
 import { HTTPStatusCodes } from '../utils/http-status-codes';
-import { NewPdfFieldParams, UpdatePdfFieldSizeParams } from '../models/interfaces';
+import { NewPdfFieldParams, UpdatePdfFieldParams } from '../models/interfaces';
 import { sendPdfResponse, handleServerError, handleNoPdfError } from '../utils/response.utils';
 
 const pdfStorage = new PdfStorageService();
@@ -27,6 +27,19 @@ export const uploadPdf = async (req: Request, res: Response) => {
     });
   } catch (err) {
     return handleServerError(res, err, 'Failed to upload file');
+  }
+};
+
+export const updatePdf = async (req: Request, res: Response) => {
+  try {
+    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
+
+    const fileName = pdfStorage.getFileName();
+    const modifiedBuffer = req.file!.buffer;
+
+    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
+  } catch (err) {
+    handleServerError(res, err, 'Failed to update PDF fields');
   }
 };
 
@@ -51,19 +64,6 @@ export const addPdfFields = async (req: Request, res: Response) => {
     sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
   } catch (err) {
     handleServerError(res, err, 'Failed to add PDF field');
-  }
-};
-
-export const updatePdfFields = async (req: Request, res: Response) => {
-  try {
-    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
-
-    const fileName = pdfStorage.getFileName();
-    const modifiedBuffer = req.file!.buffer;
-
-    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
-  } catch (err) {
-    handleServerError(res, err, 'Failed to update PDF fields');
   }
 };
 
@@ -104,7 +104,7 @@ export const removePdfField = async (req: Request, res: Response) => {
   }
 };
 
-export const updatePdfFieldSize = async (req: Request, res: Response) => {
+export const updatePdfField = async (req: Request, res: Response) => {
   const fieldName: string = decodeURIComponent(req.params.fieldName!);
 
   try {
@@ -113,15 +113,16 @@ export const updatePdfFieldSize = async (req: Request, res: Response) => {
     const fileName = pdfStorage.getFileName();
     const fileBuffer = pdfStorage.getCurrentPdf();
 
-    const { canvasWidth, canvasHeight, width, height } = req.body;
-    const updatedField: UpdatePdfFieldSizeParams = {
+    const { canvasWidth, canvasHeight, width, height, newName } = req.body;
+    const updatedField: UpdatePdfFieldParams = {
       canvasWidth,
       canvasHeight,
       width,
       height,
+      newName,
     };
 
-    const modifiedBuffer = await updateFieldSize(fileBuffer, fieldName, updatedField);
+    const modifiedBuffer = await updateField(fileBuffer, fieldName, updatedField);
     sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
   } catch (err) {
     handleServerError(res, err, 'Failed to update PDF field size');

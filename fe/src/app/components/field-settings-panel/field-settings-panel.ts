@@ -45,8 +45,8 @@ export class FieldSettingsPanel {
     });
   }
 
-  onSaveClick(fieldWidth: number, fieldHeight: number): void {
-    this._fieldSettings.saveChanges(fieldWidth, fieldHeight);
+  onSaveClick(newName: string, fieldWidth: number, fieldHeight: number): void {
+    this._fieldSettings.saveChanges(newName, fieldWidth, fieldHeight);
   }
 
   isHorizontal(): boolean {

@@ -11,6 +11,15 @@
       <mat-card-content>
         <form class="fieldSettingsForm">
           <mat-form-field class="formInput" appearance="outline">
+            <mat-label>Name</mat-label>
+            <input
+              #fieldName
+              matInput
+              type="text"
+              [value]="state?.field?.firstElementChild?.getAttribute('name') || ''"
+            />
+          </mat-form-field>
+          <mat-form-field class="formInput" appearance="outline">
             <mat-label>Width</mat-label>
             <input
               #fieldWidth
@@ -52,7 +61,9 @@
               class="btn"
               type="button"
               matButton="filled"
-              (click)="onSaveClick(fieldWidth.valueAsNumber, fieldHeight.valueAsNumber)"
+              (click)="
+                onSaveClick(fieldName.value, fieldWidth.valueAsNumber, fieldHeight.valueAsNumber)
+              "
             >
               Save
             </button>

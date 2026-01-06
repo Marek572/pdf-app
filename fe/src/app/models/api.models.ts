@@ -1,9 +1,5 @@
 import { PdfRotation } from './types';
 
-export interface UploadPdfResponse {
-  fileName: string;
-}
-
 export interface AddFieldRequest {
   pageIndex: number;
   x: number;
@@ -13,12 +9,19 @@ export interface AddFieldRequest {
   rotation: PdfRotation;
 }
 
-export interface FieldSizeChangeRequest {
+interface FieldSizeChangeRequest {
+  newName?: string;
   canvasWidth: number;
   canvasHeight: number;
   width: number;
   height: number;
 }
+
+interface FieldRenameRequest {
+  newName: string;
+}
+
+export type FieldChangeRequest = FieldSizeChangeRequest | FieldRenameRequest;
 
 export interface PageSize {
   width: number;

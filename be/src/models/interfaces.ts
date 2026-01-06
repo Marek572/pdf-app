@@ -7,11 +7,12 @@ export interface NewPdfFieldParams {
   rotation: number;
 }
 
-export interface UpdatePdfFieldSizeParams {
-  canvasWidth: number;
-  canvasHeight: number;
-  width: number;
-  height: number;
+export interface UpdatePdfFieldParams {
+  canvasWidth?: number;
+  canvasHeight?: number;
+  width?: number;
+  height?: number;
+  newName?: string;
 }
 
 export interface GetPdfFields {

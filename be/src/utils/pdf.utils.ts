@@ -8,7 +8,7 @@ import {
   PDFRadioGroup,
   PDFTextField,
 } from 'pdf-lib';
-import { GetPdfFields } from '../models/interfaces';
+import { GetPdfFields, UpdatePdfFieldParams } from '../models/interfaces';
 
 export function calculatePdfCoordinates(
   page: PDFPage,
@@ -21,7 +21,6 @@ export function calculatePdfCoordinates(
   const pageWidth = page.getWidth();
   const pageHeight = page.getHeight();
 
-  // Skalowanie
   const scaleX = pageWidth / canvasWidth;
   const scaleY = pageHeight / canvasHeight;
 
@@ -78,4 +77,10 @@ export function mapFormFields(form: PDFForm): GetPdfFields[] {
     name: field.getName(),
     type: field.constructor.name,
   }));
+}
+
+export function isResizeUpdate(params: UpdatePdfFieldParams): params is UpdatePdfFieldParams {
+  return (
+    'canvasWidth' in params && 'canvasHeight' in params && 'width' in params && 'height' in params
+  );
 }

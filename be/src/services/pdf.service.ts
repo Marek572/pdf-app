@@ -2,14 +2,16 @@ import {
   PDFDocument,
   PDFField,
   PDFForm,
+  PDFName,
   PDFPage,
+  PDFString,
   PDFTextField,
   rgb,
   Rotation,
   RotationTypes,
 } from 'pdf-lib';
 
-import { GetPdfFields, NewPdfFieldParams, UpdatePdfFieldSizeParams } from '../models/interfaces';
+import { GetPdfFields, NewPdfFieldParams, UpdatePdfFieldParams } from '../models/interfaces';
 import {
   calculatePdfCoordinates,
   clearAllFieldsValues,
@@ -94,13 +96,11 @@ export async function removeFieldByName(
   return await pdfDoc.save();
 }
 
-export async function updateFieldSize(
+export async function updateField(
   fileBuffer: Buffer,
   fieldName: string,
-  updatedFieldParams: UpdatePdfFieldSizeParams
+  updatedFieldParams: UpdatePdfFieldParams
 ): Promise<Uint8Array> {
-  const { canvasWidth, canvasHeight, width, height } = updatedFieldParams;
-
   const pdfDoc: PDFDocument = await PDFDocument.load(fileBuffer);
 
   const form: PDFForm = pdfDoc.getForm();
@@ -110,31 +110,38 @@ export async function updateFieldSize(
     const widgets = field.acroField.getWidgets();
     const pages = pdfDoc.getPages();
 
-    widgets.forEach((widget) => {
-      const pageRef = widget.P();
-      let page: PDFPage | undefined;
+    const newName = updatedFieldParams.newName;
+    if (newName) field.acroField.dict.set(PDFName.of('T'), PDFString.of(newName));
 
-      if (pageRef) {
-        page = pages.find(
-          (page) =>
-            page.ref.objectNumber === pageRef.objectNumber &&
-            page.ref.generationNumber === pageRef.generationNumber
-        );
-      }
+    if (updatedFieldParams) {
+      const { canvasWidth, canvasHeight, width, height } = updatedFieldParams;
 
-      if (page) {
-        const { width: pageWidth, height: pageHeight } = page.getSize();
+      widgets.forEach((widget) => {
+        const pageRef = widget.P();
+        let page: PDFPage | undefined;
 
-        const scaleX = pageWidth / canvasWidth;
-        const scaleY = pageHeight / canvasHeight;
+        if (pageRef) {
+          page = pages.find(
+            (page) =>
+              page.ref.objectNumber === pageRef.objectNumber &&
+              page.ref.generationNumber === pageRef.generationNumber
+          );
+        }
 
-        const newWidth = width * scaleX;
-        const newHeight = height * scaleY;
+        if (page && canvasWidth && canvasHeight && width && height) {
+          const { width: pageWidth, height: pageHeight } = page.getSize();
 
-        const { x, y } = widget.getRectangle();
-        widget.setRectangle({ x, y, width: newWidth, height: newHeight });
-      }
-    });
+          const scaleX = pageWidth / canvasWidth;
+          const scaleY = pageHeight / canvasHeight;
+
+          const newWidth = width * scaleX;
+          const newHeight = height * scaleY;
+
+          const { x, y } = widget.getRectangle();
+          widget.setRectangle({ x, y, width: newWidth, height: newHeight });
+        }
+      });
+    }
   }
 
   return await pdfDoc.save();

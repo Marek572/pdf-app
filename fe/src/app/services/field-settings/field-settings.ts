@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable, take } from 'rxjs';
 
 import { ApiService } from '../api-service/api-service';
 import { FileService } from '../file-service/file-service';
-import { FieldSizeChangeRequest, PageSize } from '../../models/api.models';
+import { FieldChangeRequest, PageSize } from '../../models/api.models';
 import { PdfViewerService } from '../pdf-viewer-service/pdf-viewer-service';
 import { PdfRotation, PdfRotationAngle } from '../../models/types';
 
@@ -115,7 +115,7 @@ export class FieldSettings {
     }
   }
 
-  saveChanges(fieldWidth: number, fieldHeight: number): void {
+  saveChanges(newName: string, fieldWidth: number, fieldHeight: number): void {
     const currentState = this._fieldSettingsState.value;
     const rotation: PdfRotation = this._pdfViewerService.getRotation();
 
@@ -127,6 +127,8 @@ export class FieldSettings {
         return;
       }
 
+      const currentName: string = field.getAttribute('name') || '';
+
       const isHorizontal =
         rotation === PdfRotationAngle.Deg90 || rotation === PdfRotationAngle.Deg270;
 
@@ -137,37 +139,46 @@ export class FieldSettings {
         ? currentState.field?.offsetWidth
         : currentState.field?.offsetHeight;
 
+      const hasNameChanged = newName && newName !== currentName;
+      const hasSizeChanged = offsetWidth !== fieldWidth || offsetHeight !== fieldHeight;
+
+      if (!hasNameChanged && !hasSizeChanged) {
+        return;
+      }
+
       const { width, height } = currentState.pageSize;
 
       const pageSize: PageSize = isHorizontal
         ? { width: height, height: width }
         : { width, height };
 
-      if (offsetWidth !== fieldWidth || offsetHeight !== fieldHeight) {
-        const fieldName: string = field.attributes.getNamedItem('name')?.value || '';
-        const payloadWidth = isHorizontal ? fieldHeight : fieldWidth;
-        const payloadHeight = isHorizontal ? fieldWidth : fieldHeight;
+      const payloadWidth = isHorizontal ? fieldHeight : fieldWidth;
+      const payloadHeight = isHorizontal ? fieldWidth : fieldHeight;
 
-        const params: FieldSizeChangeRequest = {
-          canvasWidth: pageSize.width,
-          canvasHeight: pageSize.height,
-          width: payloadWidth,
-          height: payloadHeight,
-        };
+      const params: FieldChangeRequest = hasSizeChanged
+        ? {
+            canvasWidth: pageSize.width,
+            canvasHeight: pageSize.height,
+            width: payloadWidth,
+            height: payloadHeight,
+            ...(hasNameChanged && { newName }),
+          }
+        : {
+            newName,
+          };
 
-        this._apiService
-          .updateFieldSize(fieldName, params)
-          .pipe(take(1))
-          .subscribe({
-            next: (data) => {
-              this.closePanel(true);
-              this._fileService.updateFileFromBlob(data);
-            },
-            error: (err) => {
-              console.error('Error updating field:', err);
-            },
-          });
-      }
+      this._apiService
+        .updateFieldSize(currentName, params)
+        .pipe(take(1))
+        .subscribe({
+          next: (data) => {
+            this.closePanel(true);
+            this._fileService.updateFileFromBlob(data);
+          },
+          error: (err) => {
+            console.error('Error updating field:', err);
+          },
+        });
     }
   }
 

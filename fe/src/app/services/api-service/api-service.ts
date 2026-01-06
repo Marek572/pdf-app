@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment.development';
-import { AddFieldRequest, FieldSizeChangeRequest } from '../../models/api.models';
+import { AddFieldRequest, FieldChangeRequest } from '../../models/api.models';
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +43,7 @@ export class ApiService {
     return this._request('delete', `fields/${fieldNameEncoded}`, null, 'blob');
   }
 
-  updateFieldSize(fieldName: string, params: FieldSizeChangeRequest): Observable<Blob> {
+  updateFieldSize(fieldName: string, params: FieldChangeRequest): Observable<Blob> {
     const fieldNameEncoded = encodeURIComponent(fieldName);
 
     return this._request('patch', `fields/${fieldNameEncoded}`, params, 'blob');

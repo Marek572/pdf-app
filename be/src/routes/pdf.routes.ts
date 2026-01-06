@@ -5,19 +5,19 @@ import {
   uploadPdf,
   clearPdfFields,
   addPdfFields,
-  updatePdfFields,
+  updatePdf,
   removePdfField,
-  updatePdfFieldSize,
+  updatePdfField,
 } from '../controllers/pdf.controller';
 
 const router = express.Router();
 
 router.post('/file', uploadMiddleware.single('file'), uploadPdf);
-router.put('/file', uploadMiddleware.single('file'), updatePdfFields);
+router.put('/file', uploadMiddleware.single('file'), updatePdf);
 
 router.post('/fields', addPdfFields);
 router.delete('/fields/values', clearPdfFields);
 router.delete('/fields/:fieldName', removePdfField);
-router.patch('/fields/:fieldName', updatePdfFieldSize);
+router.patch('/fields/:fieldName', updatePdfField);
 
 export default router;
