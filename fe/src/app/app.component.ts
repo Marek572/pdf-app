@@ -1,7 +1,6 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 
-import { filter, skip, Subject, switchMap, takeUntil } from 'rxjs';
+import { filter, Subject, switchMap, takeUntil } from 'rxjs';
 
 import { AddFormFieldState } from './services/add-form-field-state/add-form-field-state';
 import { ApiService } from './services/api-service/api-service';
@@ -23,7 +22,7 @@ export class AppComponent implements OnInit {
   private _addFormFieldState: AddFormFieldState = inject(AddFormFieldState);
   private _editFormFieldsState: EditFormFieldsState = inject(EditFormFieldsState);
   private _pdfViewerService: PdfViewerService = inject(PdfViewerService);
-  protected _fileService: FileService = inject(FileService);
+  private _fileService: FileService = inject(FileService);
 
   uploadedFileSrc!: string;
   fields!: HTMLInputElement[];
@@ -36,13 +35,11 @@ export class AppComponent implements OnInit {
     this._editFormFieldsState.toggleEditFormFields$
       .pipe(
         takeUntil(this._destroy$),
-        skip(1), // Pomiń wartość początkową
-        filter((isEditing) => !isEditing), // Reaguj tylko gdy przełączamy na FALSE (wyłączamy edycję)
-        // Używamy withLatestFrom lub po prostu sprawdzamy wartość wewnątrz,
-        // ale tutaj filter wystarczy, jeśli uploadedFileSrc jest aktualizowane synchronicznie
+
+        filter((isEditing) => !isEditing),
         filter(() => !!this.uploadedFileSrc),
-        switchMap(() => this._pdfViewerService.getPdfFieldsAsBlob()), // Pobierz Blob
-        switchMap((blob) => this._apiService.updatePdfFields(blob)), // Wyślij do API
+        switchMap(() => this._pdfViewerService.getPdfFieldsAsBlob()),
+        switchMap((blob) => this._apiService.updatePdf(blob)),
       )
       .subscribe({
         next: (response: Blob) => this._fileService.updateFileFromBlob(response),
@@ -66,5 +63,21 @@ export class AppComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+
+  onDragOver(event: DragEvent): void {
+    this._fileService.onDragOver(event);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    this._fileService.onDragLeave(event);
+  }
+
+  onDrop(event: DragEvent): void {
+    this._fileService.onDrop(event);
+  }
+
+  onFileSelected(event: Event): void {
+    this._fileService.onUploadFile(event);
   }
 }

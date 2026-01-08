@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable, Subject, takeUntil } from 'rxjs';
 
 import { AddFormFieldState } from '../add-form-field-state/add-form-field-state';
 import { ApiService } from '../api-service/api-service';
-import { UploadPdfResponse } from '../../models/api.models';
 
 @Injectable({
   providedIn: 'root',
@@ -71,9 +70,6 @@ export class FileService {
       .uploadPdf(file)
       .pipe(takeUntil(this._destory$))
       .subscribe({
-        next: (response: UploadPdfResponse) => {
-          console.log('Upload successful:', response);
-        },
         error: (error: Error) => console.error('Upload failed:', error),
       });
   }
