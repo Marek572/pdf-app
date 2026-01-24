@@ -1,0 +1,37 @@
+.fieldSettingsForm {
+      font-size: 50px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settingsFormOptions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 5px;
+
+      .btn {
+        width: 80px;
+      }
+
+      #cancelBtn {
+        color: white;
+        border-color: gray;
+
+        &:hover,
+        &:active,
+        &:focus {
+          background-color: gray !important;
+        }
+      }
+
+      #deleteBtn {
+        color: red;
+        border-color: red;
+
+        &:hover,
+        &:active,
+        &:focus {
+          background-color: darkred !important;
+        }
+      }
+    }

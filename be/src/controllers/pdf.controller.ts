@@ -1,75 +1,75 @@
 import { Request, Response } from 'express';
-import { addPdfField, getPdfFields, removeFieldsValues } from '../services/pdf.service';
+
+import {
+  addPdfField,
+  getPdfFields,
+  removeFieldByName,
+  removeFieldsValues,
+  updateField,
+} from '../services/pdf.service';
 import { PdfStorageService } from '../services/pdf-storage.service';
+import { HTTPStatusCodes } from '../utils/http-status-codes';
+import { NewPdfFieldParams, UpdatePdfFieldParams } from '../models/interfaces';
+import { sendPdfResponse, handleServerError, handleNoPdfError } from '../utils/response.utils';
 
 const pdfStorage = new PdfStorageService();
 
 export const uploadPdf = async (req: Request, res: Response) => {
-  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+  if (!req.file) return handleBadRequest(res, 'No file uploaded');
 
   try {
-    pdfStorage.uploadPdf(req.file.buffer, req.file.originalname);
-    return res.status(200).json({
+    const { buffer, originalname } = req.file;
+
+    pdfStorage.uploadPdf(buffer, originalname);
+    return res.status(HTTPStatusCodes.OK).json({
       message: 'File uploaded successfully',
-      fileName: req.file.originalname,
+      fileName: originalname,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Failed to upload file' });
+    return handleServerError(res, err, 'Failed to upload file');
   }
 };
 
-export const addPdfFields = async (req: Request, res: Response) => {
-  const pageIndex: number = Number(req.body.pageIndex);
-  const x: number = Number(req.body.x);
-  const y: number = Number(req.body.y);
-  const width: number = Number(req.body.width);
-  const height: number = Number(req.body.height);
-  const rotation: number = Number(req.body.rotation);
-
+export const updatePdf = async (req: Request, res: Response) => {
   try {
-    if (!pdfStorage.hasPdf())
-      return res.status(400).json({ message: 'No PDF file uploaded. Please upload a file first.' });
-
-    const fileName = pdfStorage.getFileName();
-    const fileBuffer = pdfStorage.getCurrentPdf();
-
-    const modifiedBuffer = await addPdfField(fileBuffer, pageIndex, x, y, width, height, rotation);
-
-    pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.send(Buffer.from(modifiedBuffer));
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Failed to add PDF field');
-  }
-};
-
-export const updatePdfFields = async (req: Request, res: Response) => {
-  try {
-    if (!pdfStorage.hasPdf())
-      return res.status(400).json({ message: 'No original PDF file. Please upload a file first.' });
+    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
 
     const fileName = pdfStorage.getFileName();
     const modifiedBuffer = req.file!.buffer;
 
-    pdfStorage.updateCurrentPdf(modifiedBuffer);
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.send(Buffer.from(modifiedBuffer));
+    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Failed to update PDF fields');
+    handleServerError(res, err, 'Failed to update PDF fields');
+  }
+};
+
+export const addPdfFields = async (req: Request, res: Response) => {
+  try {
+    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
+
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
+
+    const { pageIndex, x, y, canvasWidth, canvasHeight, rotation } = req.body;
+    const newFieldsParams: NewPdfFieldParams = {
+      pageIndex,
+      x,
+      y,
+      canvasWidth,
+      canvasHeight,
+      rotation,
+    };
+
+    const modifiedBuffer = await addPdfField(fileBuffer, newFieldsParams);
+    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
+  } catch (err) {
+    handleServerError(res, err, 'Failed to add PDF field');
   }
 };
 
 export const clearPdfFields = async (req: Request, res: Response) => {
   try {
-    if (!pdfStorage.hasPdf())
-      return res.status(400).json({ message: 'No PDF file uploaded. Please upload a file first.' });
+    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
 
     const fileName = pdfStorage.getFileName();
     const fileBuffer = pdfStorage.getCurrentPdf();
@@ -77,17 +77,57 @@ export const clearPdfFields = async (req: Request, res: Response) => {
     const fields = await getPdfFields(fileBuffer);
 
     if (fields.length === 0)
-      return res.status(400).json({ error: { message: 'No form fields found in the PDF' } });
+      return res
+        .status(HTTPStatusCodes.NotFound)
+        .json({ error: { message: 'No form fields found in the PDF' } });
 
     const modifiedBuffer = await removeFieldsValues(fileBuffer);
-
-    pdfStorage.updateCurrentPdf(Buffer.from(modifiedBuffer));
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.send(Buffer.from(modifiedBuffer));
+    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Failed to remove field values');
+    handleServerError(res, err, 'Failed to remove field values');
   }
 };
+
+export const removePdfField = async (req: Request, res: Response) => {
+  const fieldName: string = decodeURIComponent(req.params.fieldName!);
+
+  try {
+    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
+
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
+
+    const modifiedBuffer = await removeFieldByName(fileBuffer, fieldName);
+    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
+  } catch (err) {
+    handleServerError(res, err, 'Failed to remove PDF field');
+  }
+};
+
+export const updatePdfField = async (req: Request, res: Response) => {
+  const fieldName: string = decodeURIComponent(req.params.fieldName!);
+
+  try {
+    if (!pdfStorage.hasPdf()) return handleNoPdfError(res);
+
+    const fileName = pdfStorage.getFileName();
+    const fileBuffer = pdfStorage.getCurrentPdf();
+
+    const { canvasWidth, canvasHeight, width, height, newName } = req.body;
+    const updatedField: UpdatePdfFieldParams = {
+      canvasWidth,
+      canvasHeight,
+      width,
+      height,
+      newName,
+    };
+
+    const modifiedBuffer = await updateField(fileBuffer, fieldName, updatedField);
+    sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
+  } catch (err) {
+    handleServerError(res, err, 'Failed to update PDF field size');
+  }
+};
+function handleBadRequest(res: Response<any, Record<string, any>>, arg1: string) {
+  throw new Error('Function not implemented.');
+}

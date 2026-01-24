@@ -1,0 +1,75 @@
+@if (state(); as state) {
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="state.trigger!"
+    [cdkConnectedOverlayOpen]="state.isOpen"
+    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+    [cdkConnectedOverlayHasBackdrop]="true"
+    (overlayOutsideClick)="onCancelClick()"
+  >
+    <mat-card>
+      <mat-card-content>
+        <form class="fieldSettingsForm">
+          <mat-form-field class="formInput" appearance="outline">
+            <mat-label>Name</mat-label>
+            <input
+              #fieldName
+              matInput
+              type="text"
+              [value]="state?.field?.firstElementChild?.getAttribute('name') || ''"
+            />
+          </mat-form-field>
+          <mat-form-field class="formInput" appearance="outline">
+            <mat-label>Width</mat-label>
+            <input
+              #fieldWidth
+              matInput
+              type="number"
+              [value]="isHorizontal() ? state?.field?.offsetHeight : state?.field?.offsetWidth"
+            />
+          </mat-form-field>
+          <mat-form-field class="formInput" appearance="outline">
+            <mat-label>Height</mat-label>
+            <input
+              #fieldHeight
+              matInput
+              type="number"
+              [value]="isHorizontal() ? state?.field?.offsetWidth : state?.field?.offsetHeight"
+            />
+          </mat-form-field>
+
+          <div class="settingsFormOptions">
+            <button
+              id="cancelBtn"
+              class="btn"
+              type="button"
+              matButton="outlined"
+              (click)="onCancelClick()"
+            >
+              Cancel
+            </button>
+            <button
+              id="deleteBtn"
+              class="btn"
+              type="button"
+              matButton="outlined"
+              (click)="onDeleteClick()"
+            >
+              Delete
+            </button>
+            <button
+              class="btn"
+              type="button"
+              matButton="filled"
+              (click)="
+                onSaveClick(fieldName.value, fieldWidth.valueAsNumber, fieldHeight.valueAsNumber)
+              "
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
+}
