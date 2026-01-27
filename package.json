@@ -1,8 +1,5 @@
 {
-  "dependencies": {
-    "@angular/cli": "^20.3.3",
-    "@types/multer": "^2.0.0",
-    "multer": "^2.0.2",
+  "devDependencies": {
     "prettier": "^3.6.2"
   }
 }

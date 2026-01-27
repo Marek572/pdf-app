@@ -43,7 +43,7 @@ export class ApiService {
     return this._request('delete', `fields/${fieldNameEncoded}`, null, 'blob');
   }
 
-  updateFieldSize(fieldName: string, params: FieldChangeRequest): Observable<Blob> {
+  updateField(fieldName: string, params: FieldChangeRequest): Observable<Blob> {
     const fieldNameEncoded = encodeURIComponent(fieldName);
 
     return this._request('patch', `fields/${fieldNameEncoded}`, params, 'blob');

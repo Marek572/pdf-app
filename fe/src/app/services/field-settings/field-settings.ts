@@ -168,7 +168,7 @@ export class FieldSettings {
           };
 
       this._apiService
-        .updateFieldSize(currentName, params)
+        .updateField(currentName, params)
         .pipe(take(1))
         .subscribe({
           next: (data) => {

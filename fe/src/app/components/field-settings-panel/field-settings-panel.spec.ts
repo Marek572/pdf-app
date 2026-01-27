@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 import { FieldSettingsPanel } from './field-settings-panel';
 
@@ -8,7 +9,8 @@ describe('FieldSettingPanel', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FieldSettingsPanel],
+      imports: [FieldSettingsPanel],
+      providers: [provideHttpClient()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FieldSettingsPanel);

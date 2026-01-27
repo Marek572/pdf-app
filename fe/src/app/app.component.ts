@@ -7,12 +7,14 @@ import { ApiService } from './services/api-service/api-service';
 import { EditFormFieldsState } from './services/edit-form-fields-state/edit-form-fields-state';
 import { FileService } from './services/file-service/file-service';
 import { PdfViewerService } from './services/pdf-viewer-service/pdf-viewer-service';
+import { PdfViewerComponent } from './components/pdf-viewer/pdf-viewer';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
-  standalone: false,
+  standalone: true,
+  imports: [PdfViewerComponent],
 })
 export class AppComponent implements OnInit {
   protected readonly title = signal('fe');

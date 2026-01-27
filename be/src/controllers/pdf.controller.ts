@@ -16,6 +16,8 @@ const pdfStorage = new PdfStorageService();
 
 export const uploadPdf = async (req: Request, res: Response) => {
   if (!req.file) return handleBadRequest(res, 'No file uploaded');
+  if (req.file.mimetype !== 'application/pdf')
+    return handleBadRequest(res, 'Invalid file type. Only PDF files are allowed.');
 
   try {
     const { buffer, originalname } = req.file;
@@ -125,9 +127,9 @@ export const updatePdfField = async (req: Request, res: Response) => {
     const modifiedBuffer = await updateField(fileBuffer, fieldName, updatedField);
     sendPdfResponse(res, fileName, modifiedBuffer, pdfStorage);
   } catch (err) {
-    handleServerError(res, err, 'Failed to update PDF field size');
+    handleServerError(res, err, 'Failed to update PDF field');
   }
 };
-function handleBadRequest(res: Response<any, Record<string, any>>, arg1: string) {
-  throw new Error('Function not implemented.');
+function handleBadRequest(res: Response<any, Record<string, any>>, msg: string) {
+  res.status(HTTPStatusCodes.BadRequest).json({ error: { message: msg } });
 }

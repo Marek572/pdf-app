@@ -50,7 +50,7 @@ import { FieldSettingsPanel } from '../field-settings-panel/field-settings-panel
   `,
   imports: [NgxExtendedPdfViewerModule, Toolbar, Sidebar, FieldSettingsPanel],
 })
-export class PdfViewer implements OnInit, OnDestroy {
+export class PdfViewerComponent implements OnInit, OnDestroy {
   private _pdfViewerService: PdfViewerService = inject(PdfViewerService);
   private _fileService: FileService = inject(FileService);
   private _editFormFieldsState: EditFormFieldsState = inject(EditFormFieldsState);

@@ -1,9 +1,18 @@
-import { platformBrowser } from '@angular/platform-browser';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { importProvidersFrom } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter, Routes } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
-import { AppModule } from './app/app.module';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
-platformBrowser()
-  .bootstrapModule(AppModule, {
-    ngZoneEventCoalescing: true,
-  })
-  .catch((err) => console.error(err));
+const routes: Routes = [];
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(),
+    provideRouter(routes),
+    importProvidersFrom(MatIconModule, NgxExtendedPdfViewerModule),
+  ],
+}).catch((err) => console.error(err));

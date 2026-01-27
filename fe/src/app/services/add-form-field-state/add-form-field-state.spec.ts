@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { AddFormFieldState } from './add-form-field-state';
 
@@ -6,7 +8,9 @@ describe('AddFormFieldState', () => {
   let service: AddFormFieldState;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(AddFormFieldState);
   });
 
